@@ -2,7 +2,7 @@
 #include <voyage.hpp>
 #include "texture.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 	typedef struct Material {
 		public:
 			float shineDamper = 1, specularReflectivity = 0, transparency = 0, enviroRefractivity = 0.5, fresnelPower = 2;
@@ -13,6 +13,8 @@ namespace Cyclone {
 			Material(const Material& material);
 
 			Material(Material&& material);
+
+			~Material() noexcept = default;
 
 			const glm::vec3& getDiffuseColor() const;
 

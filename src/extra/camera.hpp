@@ -1,7 +1,7 @@
 #pragma once
 #include <voyage.hpp>
 
-namespace Cyclone {
+namespace Voyage {
 
 	class Camera1P {
 		public:
@@ -21,7 +21,7 @@ namespace Cyclone {
 
 			Camera1P& setPosition(const float& x, const float& y, const float& z);
 
-			glm::vec3& getPosition();
+			const glm::vec3& getPosition() const;
 
 			const float& getYaw() const;
 
@@ -49,12 +49,11 @@ namespace Cyclone {
 
 			void rollCCW(const float& factor);
 
-			const glm::mat4& getViewMatrix();
+			const void getViewMatrix(glm::mat4& view) const;
 
 			glm::vec3 position;
 			float pitch, yaw, roll;
 		private:
-			glm::mat4 view;
 	};
 
 	class Camera3P {

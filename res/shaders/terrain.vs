@@ -18,17 +18,17 @@ void main(void){
 	vec4 worldPosition = transform * vec4(position, 1.0),
 		 fromCameraPosition = view * worldPosition;
 	gl_Position = project * fromCameraPosition;
-	
+
 	pass_textureCoords = textureCoords;
 	gl_ClipDistance[0] = dot(worldPosition, clipPlane);
-	
+
 	// Phong shading
 	surfaceNormal = (transform * vec4(normals, 0.0)).xyz;
 	toLightVector = lightPos - worldPosition.xyz;
-	
+
 	// Specular shading
 	toCameraVector = normalize(inverse(view) * vec4(0.0, 0.0, 0.0, 1.0) - worldPosition).xyz;
-	
+
 	// Fog calculations
 	float distance = length(fromCameraPosition.xyz);
 	visibility = clamp(exp(-pow(distance * fogDensity, fogGradient)), 0.0, 1.0);

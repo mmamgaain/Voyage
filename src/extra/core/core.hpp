@@ -1,8 +1,8 @@
 #pragma once
 #include <voyage.hpp>
-#include "../input/game_action.hpp"
+#include "extra/input/game_action.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 
 	class Core {
 		public:

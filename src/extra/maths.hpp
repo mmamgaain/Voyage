@@ -1,7 +1,7 @@
 #pragma once
 #include <voyage.hpp>
 
-namespace Cyclone {
+namespace Voyage {
 
 	template<typename T>
 	std::tuple<T, T> min_and_max(const T& min, const T& max);

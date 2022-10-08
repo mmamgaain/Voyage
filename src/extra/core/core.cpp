@@ -1,8 +1,6 @@
-#include <glad.h>
 #include "core.hpp"
-#include "../input/game_action.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 
 	bool Core::is_debug = false;
 	double Core::startTime = 0, Core::endTime = 0, Core::deltaTime = 0.16, Core::mouseX = 0, Core::mouseY = 0;
@@ -40,6 +38,9 @@ namespace Cyclone {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+
+		// glEnable(GL_CLIP_DISTANCE1);
+		glEnable(GL_MULTISAMPLE);
 	}
 
 	void Core::set_fullscreen(const bool& fullscreen) { is_fullscreen = fullscreen; }

@@ -1,6 +1,6 @@
 #include <voyage.hpp>
 
-using namespace Cyclone;
+using namespace Voyage;
 
 template<typename T>
 std::tuple<T, T> min_and_max(const T& min, const T& max) { return std::make_pair<T, T>(std::min(min, max), std::max(min, max)); }

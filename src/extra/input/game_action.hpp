@@ -20,7 +20,7 @@
 #define SIZE_OF_ARRAY_IN_ELEMENTS(x) (sizeof(x) / sizeof(x[0]))
 #define SIZE_OF_ARRAY_IN_BYTES(x, length) (sizeof(x) / length)
 
-namespace Cyclone {
+namespace Voyage {
 
 	typedef enum { GAME_INPUT_BEHAVIOUR_NORMAL, GAME_INPUT_BEHAVIOUR_DETECT_INITIAL_PRESS_ONLY } BEHAVIOURS;
 	typedef enum { GAME_INPUT_STATE_RELEASED, GAME_INPUT_STATE_PRESSED, GAME_INPUT_STATE_WAITING_FOR_RELEASE } STATES;

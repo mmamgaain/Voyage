@@ -6,21 +6,23 @@ layout (location = 2) in vec3 normals;
 layout (location = 3) in vec3 tangents;
 layout (location = 4) in vec3 bitangents;
 
-out vec3 out_Color;
+out vec3 unitNormal, unitLightVector, reflectedUnitLightVector, toLightVector, toCameraVector;
 out vec2 out_TextureCoords;
 
 uniform mat4 model, view, projection;
-uniform vec3 ball;
+uniform vec3 lightDir;
 
 void main(void) {
 
 	vec4 worldPosition = model * vec4(position, 1.0),
-		 viewPosition  = view * worldPosition;
+	     viewPosition  = view * worldPosition;
 	gl_Position = projection * viewPosition;
 
-	//out_Color = normals * 0.5 + 0.5;
-	out_Color = position + 0.5;
-	//out_Color = abs(position - ball);
-	out_TextureCoords = out_Color.xy * 2.0;
+	unitNormal = normalize(model * vec4(normals, 0.0)).xyz;
+	unitLightVector = normalize(lightDir);
+	reflectedUnitLightVector = reflect(unitLightVector, unitNormal);
+	toLightVector = -unitLightVector;
+	toCameraVector = normalize((inverse(view) * vec4(0.0, 0.0, 0.0, 1.0)).xyz - worldPosition.xyz);
 
+	out_TextureCoords = position.xy + 0.5 * 2.0;
 }

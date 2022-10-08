@@ -1,7 +1,7 @@
 #include "game_action.hpp"
-#include "../core/core.hpp"
+#include "extra/core/core.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 
 	std::unordered_map<int, GameAction*> GameAction::keys;
 	GameAction* GameAction::mouses[9];

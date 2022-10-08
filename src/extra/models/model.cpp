@@ -1,13 +1,13 @@
 #include "model.hpp"
-#include "../texture/material.hpp"
+#include "extra/maths.hpp"
+#include "extra/texture/material.hpp"
 #include "assimp/material.h"
+#include "extra/maths.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 
-	Model::Model(const char* filename, Loader& loader) {
-		if(!models.empty()) return;
+	Model::Model(const char* const filename, Loader& loader, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale): position(position), rotation(rotation), scale(scale) {
 		const aiScene* scene = aiImportFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals | aiProcess_OptimizeMeshes | aiProcess_GenNormals);
-
 		int slashIndex = -1;
 
 		for(size_t i = 0; i < strlen(filename); i++) { if(filename[i] == '/') slashIndex = i; }
@@ -26,7 +26,15 @@ namespace Cyclone {
 		aiReleaseImport(scene);
 	}
 
-	std::vector<RawModel>& Model::getModels() { return models; }
+	Model::Model(const Model& model) {}
+
+	Model::Model(Model&& model) noexcept {}
+
+	Model::~Model() { dispose(); }
+
+	const std::vector<RawModel>& Model::getModels() const { return models; }
+
+	void Model::getTransformation(glm::mat4& dest) const { getTransformationMatrix(dest, position, rotation, scale); }
 
 	const Model& Model::operator=(Model&& model) {
 		models.clear();
@@ -119,6 +127,6 @@ namespace Cyclone {
 		for(unsigned int i = 0; i < scene->mNumMeshes; i++) processMesh(scene->mMeshes[i], loader);
 	}
 
-	void Model::dispose(Loader& loader) { for(RawModel& model : models) loader.dispose(model.getID()); }
+	void Model::dispose() { for(RawModel& model : models) model.dispose(); }
 
 }

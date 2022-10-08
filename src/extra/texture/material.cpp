@@ -1,7 +1,6 @@
 #include "material.hpp"
-#include <algorithm>
 
-namespace Cyclone {
+namespace Voyage {
 
 	Material::Material(const glm::vec3& diffuse, const glm::vec3& ambient, const glm::vec3& specular, Texture* texture): diffuse(diffuse), ambient(ambient), specular(specular), texture(texture), normalMap(0), specularMap(0), shineDamper(1), specularReflectivity(0), transparency(0), enviroRefractivity(0.5), fresnelPower(2), isDoubleSided(false), hasFresnel(true), rows({}) {}
 
@@ -69,6 +68,6 @@ namespace Cyclone {
 		return *this;
 	}
 
-	void Material::dispose() { texture->dispose(); normalMap->dispose(); specularMap->dispose(); }
+	void Material::dispose() { if(texture) texture->dispose(); if(normalMap) normalMap->dispose(); if(specularMap) specularMap->dispose(); }
 
 }

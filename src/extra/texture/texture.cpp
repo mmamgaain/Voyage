@@ -1,17 +1,47 @@
 #include "texture.hpp"
+#include "extra/maths.hpp"
+#include <algorithm>
 
-namespace Cyclone {
-	Texture::Texture(const char* filepath, const bool& flip_vertically): localBuffer(nullptr), filepath(filepath), width(0), height(0), bpp(0) {
+namespace Voyage {
+	float Texture::MAX_ANISOTROPY_LEVEL = 0.0;
+
+	Texture::Texture(const char* filepath, const bool& flip_vertically, const float& anisotropic, const int& type): localBuffer(nullptr), filepath(filepath), width(0), height(0), bpp(0), type(type) {
+		if(MAX_ANISOTROPY_LEVEL == 0) glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &MAX_ANISOTROPY_LEVEL);
 		stbi_set_flip_vertically_on_load(flip_vertically);
 		localBuffer = stbi_load(filepath, &width, &height, &bpp, 4);
 		glGenTextures(1, &id);
-		glBindTexture(GL_TEXTURE_2D, id);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(type, id);
+		glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(type, GL_TEXTURE_WRAP_R, GL_REPEAT);
+		glGenerateMipmap(type);
+		glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY,std::min(anisotropic, MAX_ANISOTROPY_LEVEL) );
+		glTexImage2D(type, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
+		glBindTexture(type, 0);
+	}
+
+	Texture::Texture(const std::vector<const char*>& filepaths, const std::vector<bool>& flip_vertically, const float& levelOfDetail, const float& anisotropic): localBuffer(nullptr), filepath(filepaths[0]), width(0), height(0), bpp(0), type(GL_TEXTURE_CUBE_MAP) {
+		if(MAX_ANISOTROPY_LEVEL == 0) glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &MAX_ANISOTROPY_LEVEL);
+		// Out-of-bounds parameters check
+		if(filepaths.size() != 6 && (flip_vertically.size() != 6 || flip_vertically.size() != 1)) { std::cerr << "ERROR: While creating cubemap texture." << std::endl; return; }
+		glGenTextures(1, &id);
+		glBindTexture(type, id);
+		for(unsigned int i = 0; i < filepaths.size(); i++) {
+			stbi_set_flip_vertically_on_load(flip_vertically[flip_vertically.size() == 1 ? 0 : i]);
+			localBuffer = stbi_load(filepaths[i], &width, &height, &bpp, 4);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
+		}
+		glGenerateMipmap(type);
+		glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(type, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY, std::max(anisotropic, MAX_ANISOTROPY_LEVEL));
+		glTextureParameterf(type, GL_TEXTURE_LOD_BIAS, levelOfDetail);
+		glBindTexture(type, 0);
 	}
 
 	Texture::Texture(const Texture& texture) {
@@ -21,6 +51,7 @@ namespace Cyclone {
 		this->height = texture.height;
 		this->bpp = texture.bpp;
 		this->id = texture.id;
+		this->type = texture.type;
 	}
 
 	Texture::Texture(Texture&& texture) {
@@ -30,7 +61,10 @@ namespace Cyclone {
 		this->height = texture.height;
 		this->bpp = texture.bpp;
 		this->id = texture.id;
+		this->type = texture.type;
 	}
+
+	Texture::~Texture() { dispose(); }
 
 	const unsigned char* Texture::getBuffer() const { return localBuffer; }
 
@@ -58,6 +92,7 @@ namespace Cyclone {
 			this->height = texture.height;
 			this->bpp = texture.bpp;
 			this->id = texture.id;
+			this->type = texture.type;
 
 			texture.localBuffer = nullptr;
 			texture.filepath = nullptr;
@@ -77,10 +112,16 @@ namespace Cyclone {
 			this->height = texture.height;
 			this->bpp = texture.bpp;
 			this->id = texture.id;
+			this->type = texture.type;
 		}
 		return *this;
 	}
 
-	void Texture::dispose() { glDeleteTextures(1, &id); stbi_image_free(localBuffer); }
+	void Texture::dispose() {
+		if(!localBuffer) return;
+		glDeleteTextures(1, &id);
+		stbi_image_free(localBuffer);
+		localBuffer = nullptr;
+	}
 
 }

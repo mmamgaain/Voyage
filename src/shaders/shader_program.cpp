@@ -1,43 +1,41 @@
-#include <glad.h>
 #include "shader_program.hpp"
-#include <iostream>
-#include "../extra/maths.hpp"
+#include "extra/maths.hpp"
 #include <fstream>
 
-namespace Cyclone {
+namespace Voyage {
 
 	unsigned int ShaderProgram::DEFAULT_NUM_TEXTURES = 4;
 	int ShaderProgram::MAX_TEXTURE_UNITS = -1;
 
-	ShaderProgram::ShaderProgram(const char* vertex_file, const char* fragment_file, unsigned int num_textures) noexcept: id(0), num_textures(num_textures) {
+	ShaderProgram::ShaderProgram(const char* const vertex_file, const char* const fragment_file, unsigned int num_textures) noexcept: id(0), num_textures(num_textures) {
 		if(MAX_TEXTURE_UNITS == -1) glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MAX_TEXTURE_UNITS);
-		this->num_textures = clamp<unsigned int>(num_textures, DEFAULT_NUM_TEXTURES, MAX_TEXTURE_UNITS);
+		this->num_textures = clamp<unsigned int>(num_textures, 0, MAX_TEXTURE_UNITS);
 		location_textureUnits.resize(this->num_textures);
 		unsigned int vs = loadShader(vertex_file, GL_VERTEX_SHADER), fs = loadShader(fragment_file, GL_FRAGMENT_SHADER);
 		id = glCreateProgram();
 		glAttachShader(id, vs);
 		glAttachShader(id, fs);
 		glLinkProgram(id);
-		int linked = 0;
+		int linked = GL_FALSE;
 		glGetProgramiv(id, GL_LINK_STATUS, &linked);
 		if(linked == GL_FALSE) {
 			int length = 0;
 			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
 			char* message = (char*) alloca(length * sizeof(char));
 			glGetProgramInfoLog(id, length, &length, message);
-			std::cerr << "Could not link shader" << '\n' << message << (message[length -1] == '\n' ? "" : "\n");
+			std::cerr << "Could not link shader: " << '\n' << message << (message[length -1] == '\n' ? "" : "\n");
 			delete message;
 		}
 
 		glValidateProgram(id);
-		int validated = 0;
+		int validated = GL_FALSE;
 		glGetProgramiv(id, GL_VALIDATE_STATUS, &validated);
 		if(validated == GL_FALSE) {
 			int length = 0;
 			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
 			char* message = (char*) alloca(length * sizeof(char));
 			glGetProgramInfoLog(id, length, &length, message);
-			std::cerr << "Could not validate shader" << '\n' << message << (message[length -1] == '\n' ? "" : "\n");
+			std::cerr << "Could not validate shader: " << '\n' << message << (message[length -1] == '\n' ? "" : "\n");
 			delete message;
 		}
 
@@ -46,7 +44,7 @@ namespace Cyclone {
 		glDetachShader(id, fs);
 		glDeleteShader(vs);
 		glDeleteShader(fs);
-		if((linked | validated) == GL_FALSE) {
+		if((linked & validated) == GL_FALSE) {
 			glDeleteProgram(id);
 			std::cerr << "Could not compile shader program. Deleting shader from the GPU." << std::endl;
 		}
@@ -56,6 +54,8 @@ namespace Cyclone {
 
 	ShaderProgram::ShaderProgram(ShaderProgram&& shader):id(std::move(shader.id)), num_textures(std::move(shader.num_textures)) {}
 
+	ShaderProgram::~ShaderProgram() { dispose(); }
+
 	ShaderProgram& ShaderProgram::operator=(const ShaderProgram& shader) { id = shader.id; return *this; }
 
 	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shader) { id = shader.id; return *this; }
@@ -64,7 +64,7 @@ namespace Cyclone {
 		unsigned int id = glCreateShader(type);
 		std::string result;
 		std::ifstream in(source, std::ios::binary);
-		if(!in) { std::cerr << "Shader file " << source << " either doesn't exist or has some problem being opened!" << std::endl; exit(1); }
+		if(!in) { std::cerr << "Shader file: " << source << " either doesn't exist or has some problem being opened!" << std::endl; exit(1); }
 		in.seekg(0, std::ios::end);
 		result.resize(in.tellg());
 		in.seekg(0, std::ios::beg);
@@ -81,7 +81,7 @@ namespace Cyclone {
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 			char* message = (char*) alloca(length * sizeof(char));
 			glGetShaderInfoLog(id, length, &length, message);
-			std::cerr << "Could not compile shader" << source << '\n' << message << (message[length -1] == '\n' ? "" : "\n");
+			std::cerr << "Could not compile shader: " << source << '\n' << message << (message[length - 1] == '\n' ? "" : "\n");
 			delete message;
 		}
 		return id;
@@ -91,7 +91,7 @@ namespace Cyclone {
 
 	void ShaderProgram::stop() const { glUseProgram(0); }
 
-	const int ShaderProgram::getUniformLocation(const char* name, const bool& store) {
+	const int ShaderProgram::getUniformLocation(const char* const name, const bool& store) const {
 		if(uniformLocations.find(name) != uniformLocations.end()) return uniformLocations[name];
 		int loc = glGetUniformLocation(id, name);
 		if(store) uniformLocations[name] = loc;
@@ -120,5 +120,13 @@ namespace Cyclone {
 
 	void ShaderProgram::dispose() { glDeleteProgram(id); }
 
+	bool ShaderProgram::remapTextureSampleName(const unsigned int& location, const char* name) const {
+		if(location < num_textures) {
+			location_textureUnits.at(location) = getUniformLocation(name, false);
+			glUniform1i(location_textureUnits[location], location);
+			return true;
+		}
+		return false;
+	}
 
 }

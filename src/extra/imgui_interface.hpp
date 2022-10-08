@@ -1,7 +1,7 @@
 #pragma once
 #include <voyage.hpp>
 
-namespace Cyclone {
+namespace Voyage {
 
 	class ImGuiInterface {
 		public:

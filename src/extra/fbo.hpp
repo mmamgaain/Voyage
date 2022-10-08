@@ -1,7 +1,7 @@
 #pragma once
 #include <voyage.hpp>
 
-namespace Cyclone {
+namespace Voyage {
 	class FrameBuffer {
 		public:
 			typedef enum COLOR_ATTACHMENT_TYPE { COLOR_ATTACHMENT_NONE, COLOR_ATTACHMENT_BUFFER, COLOR_ATTACHMENT_TEXTURE } COLOR_ATTACHMENT_TYPE;
@@ -13,7 +13,7 @@ namespace Cyclone {
 
 			constexpr const bool isMultisampled() const;
 
-			void resolveToFBO(FrameBuffer* fbo = nullptr) const;
+			void resolveToFBO(FrameBuffer* fbo = nullptr)  const;
 
 			void resolveToScreen(const unsigned int& attachment = 0) const;
 
@@ -26,8 +26,8 @@ namespace Cyclone {
 			const unsigned int& getDepthTexture();
 		private:
 			unsigned int id, width, height, samples, attachments, depthTexture, depthBuffer;
-			std::vector<unsigned int> colorTexture, colorBuffer;
-			std::vector<bool> dirty;
+			unsigned int *colorTexture, *colorBuffer;
+			bool *dirty;
 			FrameBuffer *reserve;
 			static int MAX_TARGETS, MAX_SAMPLES;
 
@@ -48,5 +48,7 @@ namespace Cyclone {
 			const unsigned int* resolveToTextures();
 
 			bool isDirty() const;
+
+			inline void setDirty(const unsigned int& flag) const;
 	};
 }

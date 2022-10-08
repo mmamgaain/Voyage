@@ -1,17 +1,16 @@
 #pragma once
 #include <voyage.hpp>
-#include <unordered_map>
-#include <vector>
-#include <glm/glm.hpp>
 
-namespace Cyclone {
+namespace Voyage {
 	class ShaderProgram {
 		public:
-			ShaderProgram(const char* vertex_file, const char* fragment_file, unsigned int num_textures = 5) noexcept;
+			ShaderProgram(const char* const vertex_file, const char* const fragment_file, unsigned int num_textures = DEFAULT_NUM_TEXTURES) noexcept;
 
 			ShaderProgram(const ShaderProgram& shader);
 
 			ShaderProgram(ShaderProgram&& shader);
+
+			~ShaderProgram();
 
 			ShaderProgram& operator=(const ShaderProgram& shader);
 
@@ -21,7 +20,7 @@ namespace Cyclone {
 
 			void stop() const;
 
-			const int getUniformLocation(const char* name, const bool& store = true);
+			const int getUniformLocation(const char* const name, const bool& store = true) const;
 
 			void loadUniform(const char* name, const float& value);
 
@@ -41,10 +40,12 @@ namespace Cyclone {
 
 			void loadUniform(const char* name, const glm::mat4& value);
 
+			bool remapTextureSampleName(const unsigned int& location, const char* name) const;
+
 			void dispose();
 		private:
 			unsigned int id, num_textures;
-			std::unordered_map<const char*, int> uniformLocations;
+			mutable std::unordered_map<const char*, int> uniformLocations;
 			static unsigned int DEFAULT_NUM_TEXTURES;
 			static int MAX_TEXTURE_UNITS;
 
@@ -52,7 +53,7 @@ namespace Cyclone {
 
 			void getAllTextureLocations();
 		protected:
-			std::vector<int> location_textureUnits;
+			mutable std::vector<int> location_textureUnits;
 	};
 }
 

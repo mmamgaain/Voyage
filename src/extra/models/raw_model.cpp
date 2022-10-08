@@ -1,36 +1,52 @@
 #include "raw_model.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 
-	RawModel::RawModel(const unsigned int& vao_id, const size_t& vertex_count, const int& num_buffers, const bool& has_index_buffer): vao_id(vao_id), vertex_count(vertex_count), num_buffers(std::max(-1, num_buffers)), has_index_buffer(has_index_buffer) {}
-	
-	RawModel::RawModel(const RawModel& model): vao_id(model.vao_id), vertex_count(model.vertex_count), num_buffers(model.num_buffers), has_index_buffer(model.has_index_buffer) {}
-	
-	RawModel::RawModel(RawModel&& model) noexcept: vao_id(std::move(model.vao_id)), vertex_count(std::move(model.vertex_count)), num_buffers(std::move(model.num_buffers)), has_index_buffer(std::move(model.has_index_buffer)) {}
-	
-	void RawModel::setNumBuffers(const unsigned int& num_buffers) { this->num_buffers = num_buffers; }
-	
-	bool RawModel::hasIndexBuffer() const { return has_index_buffer; }
-	
-	int RawModel::getNumBuffers() const { return num_buffers; }
-	
-	bool RawModel::isValidNumBuffers() const { return num_buffers > -1; }
-	
-	unsigned int RawModel::getID() const { return vao_id; }
-	
-	size_t RawModel::getVertexCount() const { return vertex_count; }
-	
+	// Raw Model declarations start
+	RawModel::RawModel(const unsigned int& vao_id, const size_t& vertex_count, const std::vector<unsigned int>& vbos, const bool& has_index_buffer): vao_id(vao_id), vertex_count(vertex_count), vbos(vbos), has_index_buffer(has_index_buffer) {}
+
+	RawModel::RawModel(const RawModel& model): vao_id(model.vao_id), vertex_count(model.vertex_count), vbos(model.vbos), has_index_buffer(model.has_index_buffer) {}
+
+	RawModel::RawModel(RawModel&& model) noexcept: vao_id(std::move(model.vao_id)), vertex_count(std::move(model.vertex_count)), vbos(std::move(model.vbos)), has_index_buffer(std::move(model.has_index_buffer)) {}
+
+	RawModel::~RawModel() { dispose(); }
+
+	const bool& RawModel::hasIndexBuffer() const { return has_index_buffer; }
+
+	unsigned int RawModel::getNumBuffers() const { return vbos.size(); }
+
+	bool RawModel::isValidNumBuffers() const { return vbos.size() > 0; }
+
+	const unsigned int& RawModel::getID() const { return vao_id; }
+
+	const size_t& RawModel::getVertexCount() const { return vertex_count; }
+
 	RawModel& RawModel::operator=(RawModel&& other) noexcept {
 		vao_id = other.vao_id;
 		vertex_count = other.vertex_count;
-		num_buffers = other.num_buffers;
+		vbos = std::move(other.vbos);
 		has_index_buffer = other.has_index_buffer;
 		return *this;
 	}
-	
+
 	std::ostream& operator<<(std::ostream& stream, const RawModel& model) noexcept {
-		stream << "Raw Model: id:-- " << model.vao_id << ", vertex count:-- " << model.vertex_count << ", number of buffers:-- " << model.num_buffers << ", has_index_buffer:-- " << model.has_index_buffer;
+		stream << "Raw Model: id:-- " << model.vao_id << ", vertex count:-- " << model.vertex_count << ", number of buffers:-- " << model.vbos.size() << ", has_index_buffer:-- " << model.has_index_buffer;
 		return stream;
 	}
+
+	void RawModel::dispose() {
+		if(vao_id == -1) return;
+		vao_id = -1;
+		glDeleteVertexArrays(1, &vao_id);
+		for(unsigned int vbo : vbos) glDeleteBuffers(1, &vbo);
+	}
+
+	void RawModel::_setVBOs(const std::vector<unsigned int>& vbos) const { this->vbos.reserve(vbos.size()); }
+
+	// Raw Model declarations end
+
+	// Textured Model declarations start
+	// Textured Model declarations end
+
 
 }

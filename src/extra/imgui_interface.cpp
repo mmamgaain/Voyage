@@ -1,6 +1,6 @@
 #include "imgui_interface.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 
 void ImGuiInterface::init(GLFWwindow* window) {
 	ImGui::CreateContext();

@@ -1,9 +1,11 @@
 #include "maths.hpp"
 #include "core/core.hpp"
+#include "glm/ext/matrix_transform.hpp"
 
-namespace Cyclone {
+namespace Voyage {
 
 	void getTransformationMatrix(glm::mat4& dest, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) {
+		dest = glm::identity<glm::mat4>();
 		dest = glm::translate(dest, position);
 		dest = glm::rotate(dest, glm::radians(rotation[0]), glm::vec3(1, 0, 0));
 		dest = glm::rotate(dest, glm::radians(rotation[1]), glm::vec3(0, 1, 0));
