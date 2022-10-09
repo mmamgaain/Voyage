@@ -6,6 +6,7 @@
 #include "extra/camera.hpp"
 #include "extra/loader.hpp"
 #include "extra/texture/material_terrain.hpp"
+#include "glm/fwd.hpp"
 #include "renderer/model_renderer.hpp"
 #include "shaders/shader_program.hpp"
 #include "extra/maths.hpp"

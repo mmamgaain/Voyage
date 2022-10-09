@@ -23,7 +23,7 @@ namespace Voyage {
 
 			const unsigned int getColorTexture(const unsigned int& target = 0);
 
-			const unsigned int& getDepthTexture();
+			const unsigned int getDepthTexture();
 		private:
 			unsigned int id, width, height, samples, attachments, depthTexture, depthBuffer;
 			unsigned int *colorTexture, *colorBuffer;
@@ -49,6 +49,10 @@ namespace Voyage {
 
 			bool isDirty() const;
 
-			inline void setDirty(const unsigned int& flag) const;
+			bool isAllDirty() const;
+
+			bool isAllNotDirty() const;
+
+			inline void setDirty(const bool& flag) const;
 	};
 }
