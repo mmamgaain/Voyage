@@ -1,4 +1,4 @@
-#include "camera.hpp"
+#include "Voyage/camera.hpp"
 
 namespace Voyage {
 

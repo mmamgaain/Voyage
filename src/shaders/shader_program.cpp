@@ -1,5 +1,5 @@
-#include "shader_program.hpp"
-#include "extra/maths.hpp"
+#include "Voyage/shader_program.hpp"
+#include "Voyage/maths.hpp"
 #include <fstream>
 
 namespace Voyage {
@@ -100,27 +100,29 @@ namespace Voyage {
 
 	void ShaderProgram::getAllTextureLocations() { for(unsigned int i = 0; i < num_textures; i++) { location_textureUnits[i] = getUniformLocation(("texture" + std::to_string(i)).data(), false); } }
 
-	void ShaderProgram::loadUniform(const char* name, const float& value) { glUniform1f(getUniformLocation(name), value); }
+	void ShaderProgram::loadUniform(const char* const name, const float& value) { glUniform1f(getUniformLocation(name), value); }
 
-	void ShaderProgram::loadUniform(const char* name, const int& value) { glUniform1i(getUniformLocation(name), value); }
+	void ShaderProgram::loadUniform(const char* const name, const int& value) { glUniform1i(getUniformLocation(name), value); }
 
-	void ShaderProgram::loadUniform(const char* name, const bool& value) { glUniform1i(getUniformLocation(name), value); }
+	void ShaderProgram::loadUniform(const char* const name, const bool& value) { glUniform1i(getUniformLocation(name), value); }
 
-	void ShaderProgram::loadUniform(const char* name, const glm::vec3& value) { glUniform3f(getUniformLocation(name), value[0], value[1], value[2]); }
+	void ShaderProgram::loadUniform(const char*  const name, const glm::vec2& value) { glUniform2f(getUniformLocation(name), value[0], value[1]); }
 
-	void ShaderProgram::loadUniform(const char* name, const glm::vec4& value) { glUniform4f(getUniformLocation(name), value[0], value[1], value[2], value[3]); }
+	void ShaderProgram::loadUniform(const char* const name, const glm::vec3& value) { glUniform3f(getUniformLocation(name), value[0], value[1], value[2]); }
 
-	void ShaderProgram::loadUniform(const char* name, const float& x, const float& y, const float& z) { glUniform3f(getUniformLocation(name), x, y, z); }
+	void ShaderProgram::loadUniform(const char* const name, const glm::vec4& value) { glUniform4f(getUniformLocation(name), value[0], value[1], value[2], value[3]); }
 
-	void ShaderProgram::loadUniform(const char* name, const float& x, const float& y, const float& z, const float& w) { glUniform4f(getUniformLocation(name), x, y, z, w); }
+	void ShaderProgram::loadUniform(const char* const name, const float& x, const float& y, const float& z) { glUniform3f(getUniformLocation(name), x, y, z); }
 
-	void ShaderProgram::loadUniform(const char* name, const glm::mat3& value) { glUniformMatrix3fv(getUniformLocation(name), 1, false, &value[0][0]); }
+	void ShaderProgram::loadUniform(const char* const name, const float& x, const float& y, const float& z, const float& w) { glUniform4f(getUniformLocation(name), x, y, z, w); }
 
-	void ShaderProgram::loadUniform(const char* name, const glm::mat4& value) { glUniformMatrix4fv(getUniformLocation(name), 1, false, &value[0][0]); }
+	void ShaderProgram::loadUniform(const char* const name, const glm::mat3& value) { glUniformMatrix3fv(getUniformLocation(name), 1, false, &value[0][0]); }
+
+	void ShaderProgram::loadUniform(const char* const name, const glm::mat4& value) { glUniformMatrix4fv(getUniformLocation(name), 1, false, &value[0][0]); }
 
 	void ShaderProgram::dispose() { glDeleteProgram(id); }
 
-	bool ShaderProgram::remapTextureSampleName(const unsigned int& location, const char* name) const {
+	bool ShaderProgram::remapTextureSampleName(const unsigned int& location, const char* const name) const {
 		if(location < num_textures) {
 			location_textureUnits.at(location) = getUniformLocation(name, false);
 			glUniform1i(location_textureUnits[location], location);

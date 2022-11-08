@@ -1,6 +1,5 @@
-#include "texture.hpp"
-#include "extra/maths.hpp"
-#include <algorithm>
+#include "Voyage/texture.hpp"
+#include "Voyage/maths.hpp"
 
 namespace Voyage {
 	float Texture::MAX_ANISOTROPY_LEVEL = 0.0;

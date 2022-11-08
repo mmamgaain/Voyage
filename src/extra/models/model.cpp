@@ -1,12 +1,14 @@
-#include "model.hpp"
-#include "extra/maths.hpp"
-#include "extra/texture/material.hpp"
+#include "Voyage/model.hpp"
+#include "Voyage/maths.hpp"
+#include "Voyage/material.hpp"
+#include "Voyage/maths.hpp"
 #include "assimp/material.h"
-#include "extra/maths.hpp"
 
 namespace Voyage {
 
-	Model::Model(const char* const filename, Loader& loader, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale): position(position), rotation(rotation), scale(scale) {
+	Material Model::DEFAULT_MATERIAL;
+
+	Model::Model(const char* const filename, Loader& loader, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, Material& material): position(position), rotation(rotation), scale(scale) {
 		const aiScene* scene = aiImportFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals | aiProcess_OptimizeMeshes | aiProcess_GenNormals);
 		int slashIndex = -1;
 
@@ -34,6 +36,8 @@ namespace Voyage {
 
 	const std::vector<RawModel>& Model::getModels() const { return models; }
 
+			const Material& Model::getMaterial() const { return material; }
+
 	void Model::getTransformation(glm::mat4& dest) const { getTransformationMatrix(dest, position, rotation, scale); }
 
 	const Model& Model::operator=(Model&& model) {
@@ -45,6 +49,13 @@ namespace Voyage {
 
 	void Model::processMaterials(const aiScene* scene, const std::string& filepath) {
 		aiMaterial* mat = scene->mMaterials[0];
+		aiColor3D diffuse, specular, ambient;
+		mat->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
+		mat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+		mat->Get(AI_MATKEY_COLOR_SPECULAR, specular);
+		material.setAmbientColor(ambient);
+		material.setDiffuseColor(diffuse);
+		material.setSpecularColor(specular);
 	}
 
 	void setData(void* dest, const void* src, const size_t copy_size) {
@@ -55,7 +66,7 @@ namespace Voyage {
 	void Model::processMesh(const aiMesh* mesh, Loader& loader) {
 		size_t num_indices = mesh->mNumFaces * 3;	// The number of elements in the indices array
 		size_t num_vertices = mesh->mNumVertices;	// One vertex represents 3 (X, Y, Z) elements in the vertices array
-		unsigned int* indices = new unsigned int[num_indices];
+		unsigned int *indices = new unsigned int[num_indices];
 		float *position = new float[num_vertices * 3], *texture_coords = new float[num_vertices * 2], *normals = new float[num_vertices * 3], *tangents = new float[num_vertices * 3], *bitangents = new float[num_vertices * 3];
 		aiVector3D curr_vert, curr_norm, curr_tang, curr_bitang;
 		for(unsigned int i = 0; i < num_vertices; i++) {

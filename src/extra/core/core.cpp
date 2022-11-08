@@ -1,11 +1,11 @@
-#include "core.hpp"
+#include "Voyage/core.hpp"
+#include "glfw/glfw3.h"
 
 namespace Voyage {
 
-	bool Core::is_debug = false;
 	double Core::startTime = 0, Core::endTime = 0, Core::deltaTime = 0.16, Core::mouseX = 0, Core::mouseY = 0;
 	GLFWwindow* Core::window;
-	size_t Core::width, Core::height;
+	int Core::width = 200, Core::height = 200;
 	bool Core::is_fullscreen = false, Core::is_vsync = true, Core::is_mouse_locked = false, Core::is_mouse_moving = false;
 
 	void Core::_error_callback(const int error, const char* description) { fputs(description, stderr); }
@@ -20,6 +20,7 @@ namespace Voyage {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwSetErrorCallback(_error_callback);
+		if(is_fullscreen) getScreenResolution(width, height);
 		window = glfwCreateWindow(width, height, "OpenGL Application", is_fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 		if(!window) { fprintf(stderr, "ERROR: GLFW Window could not be initialized\n"); glfwTerminate(); exit(EXIT_FAILURE); }
 		glfwSetKeyCallback(window, GameAction::_key_callback);
@@ -27,9 +28,11 @@ namespace Voyage {
 		glfwSetMouseButtonCallback(window, GameAction::_mouse_button_callback);
 		glfwSetScrollCallback(window, GameAction::_mouse_scroll_callback);
 		glfwMakeContextCurrent(window);
-		glfwSwapInterval(is_vsync ? 1 : 0);
+		glfwSwapInterval(is_vsync);
 		if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { fprintf(stderr, "ERROR: Modern OpenGL from GLAD could not be loaded\n"); glfwTerminate(); exit(EXIT_FAILURE);  }
-		if(!is_debug) glfwShowWindow(window);
+		#ifndef _DEBUG
+			glfwShowWindow(window);
+		#endif
 		glViewport(0, 0, width, height);
 
 		glEnable(GL_DEPTH_TEST);
@@ -46,6 +49,12 @@ namespace Voyage {
 	void Core::set_fullscreen(const bool& fullscreen) { is_fullscreen = fullscreen; }
 
 	void Core::set_vsync(const int& vsync) { is_vsync = vsync; }
+
+	void Core::getScreenResolution(int& width, int& height) {
+		const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		width = mode->width;
+		height = mode->height;
+	}
 
 	void Core::set_screen_resolution(const unsigned int a_width, const unsigned int a_height) { width = a_width; height = a_height; }
 

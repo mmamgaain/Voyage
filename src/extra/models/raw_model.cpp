@@ -1,4 +1,4 @@
-#include "raw_model.hpp"
+#include "Voyage/raw_model.hpp"
 
 namespace Voyage {
 

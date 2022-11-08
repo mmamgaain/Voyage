@@ -1,8 +1,8 @@
-#include "terrain_renderer.hpp"
-#include "extra/maths.hpp"
-#include "extra/imgui_interface.hpp"
-#include "extra/models/terrain.hpp"
-#include "extra/core/core.hpp"
+#include "Voyage/terrain_renderer.hpp"
+#include "Voyage/maths.hpp"
+#include "Voyage/imgui_interface.hpp"
+#include "Voyage/terrain.hpp"
+#include "Voyage/core.hpp"
 
 namespace Voyage {
 

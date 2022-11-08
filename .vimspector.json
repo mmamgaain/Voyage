@@ -7,7 +7,7 @@
 			"configuration": {
 				"request": "launch",
 				"program": "${workspaceRoot}/main_d",
-				"args": [ "debug" ],
+				"args": [],
 				"cwd": "${workspaceRoot}",
 				"environment": [],
 				"externalConsole": true,

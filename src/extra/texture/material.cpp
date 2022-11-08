@@ -1,4 +1,5 @@
-#include "material.hpp"
+#include "Voyage/material.hpp"
+#include "assimp/types.h"
 
 namespace Voyage {
 
@@ -16,17 +17,23 @@ namespace Voyage {
 
 	const glm::vec2& Material::getRows() const { return rows; }
 
-	Texture* Material::getTexture() const { return texture; }
+	Texture* const Material::getTexture() const { return texture; }
 
-	Texture* Material::getNormalMap() const { return normalMap; }
+	Texture* const Material::getNormalMap() const { return normalMap; }
 
-	Texture* Material::getSpecularMap() const { return specularMap; }
+	Texture* const Material::getSpecularMap() const { return specularMap; }
 
 	void Material::setDiffuseColor(const glm::vec3& diffuse) { this->diffuse = diffuse; }
 
 	void Material::setAmbientColor(const glm::vec3& ambient) { this->ambient = ambient; }
 
 	void Material::setSpecularColor(const glm::vec3& specular) { this->specular = specular; }
+
+	void Material::setDiffuseColor(const aiColor3D& diffuse) { this->diffuse[0] = diffuse.r; this->diffuse[1] = diffuse.g; this->diffuse[2] = diffuse.b; }
+
+	void Material::setAmbientColor(const aiColor3D& ambient) { this->ambient[0] = ambient.r; this->ambient[1] = ambient.g; this->ambient[2] = ambient.b; }
+
+	void Material::setSpecularColor(const aiColor3D& specular) { this->specular[0] = specular.r; this->specular[1] = specular.g; this->specular[2] = specular.b; }
 
 	void Material::setRows(const glm::vec2& rows) { this->rows = rows; }
 
@@ -35,6 +42,12 @@ namespace Voyage {
 	void Material::setNormalMap(Texture* const normal) { this->normalMap = normal; }
 
 	void Material::setSpecularMap(Texture* const specular) { this->specularMap = specular; }
+
+	const bool Material::hasTexture() const { return texture != nullptr && texture->getID(); }
+
+	const bool Material::hasNormalMap() const { return normalMap != nullptr && normalMap->getID(); }
+
+	const bool Material::hasSpecularMap() const { return specularMap != nullptr && specularMap->getID(); }
 
 	const Material& Material::operator=(const Material& material) {
 		if(this != &material) {

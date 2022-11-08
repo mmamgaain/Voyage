@@ -1,5 +1,5 @@
-#include "game_action.hpp"
-#include "extra/core/core.hpp"
+#include "Voyage/game_action.hpp"
+#include "Voyage/core.hpp"
 
 namespace Voyage {
 

@@ -1,8 +1,7 @@
-#include "skybox.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "renderer.hpp"
-#include "extra/core/core.hpp"
-#include "extra/imgui_interface.hpp"
+#include "Voyage/skybox.hpp"
+#include "Voyage/renderer.hpp"
+#include "Voyage/core.hpp"
+#include "Voyage/imgui_interface.hpp"
 
 namespace Voyage {
 

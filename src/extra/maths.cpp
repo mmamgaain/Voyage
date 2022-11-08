@@ -1,6 +1,5 @@
-#include "maths.hpp"
-#include "core/core.hpp"
-#include "glm/ext/matrix_transform.hpp"
+#include "Voyage/maths.hpp"
+#include "Voyage/core.hpp"
 
 namespace Voyage {
 

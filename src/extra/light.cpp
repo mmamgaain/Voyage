@@ -1,4 +1,4 @@
-#include "light.hpp"
+#include "Voyage/light.hpp"
 
 namespace Voyage {
 	DirectionalLight::DirectionalLight(glm::vec3 direction, glm::vec3 color, glm::vec3 attenuation): direction(direction), color(color), attenuation(attenuation) {}

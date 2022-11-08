@@ -1,6 +1,5 @@
-#include "cards.hpp"
-#include "extra/maths.hpp"
-#include "imgui/imgui.h"
+#include "Voyage/cards.hpp"
+#include "Voyage/maths.hpp"
 
 namespace Voyage {
 	Cards::Cards(Loader& loader, const char* const texture, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): model(loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2)), texture(loader.loadTexture(texture)), textureID(0), position(position), isHUD(isHUD), rotation(rotation), scale(scale) {}

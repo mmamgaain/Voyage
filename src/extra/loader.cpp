@@ -1,4 +1,6 @@
-#include "loader.hpp"
+#include "Voyage/loader.hpp"
+#include "Voyage/raw_model.hpp"
+#include "Voyage/texture.hpp"
 
 namespace Voyage {
 
@@ -10,8 +12,6 @@ namespace Voyage {
 		memcpy(textures.data(), loader.textures.data(), textures.size() * sizeof(unsigned int));
 	}
 
-	Loader::~Loader() { dispose(); }
-
 	Loader::Loader(Loader&& loader) noexcept: vaos(std::move(loader.vaos)), textures(std::move(loader.textures)) { loader.vaos.clear(); loader.textures.clear(); }
 
 	std::shared_ptr<Texture> const Loader::loadTexture(const char* filename, const bool& flip_vertically) {
@@ -20,6 +20,8 @@ namespace Voyage {
 		return tex;
 	}
 
+	Loader::~Loader() { dispose(); }
+
 	std::shared_ptr<Texture> const Loader::loadTexture(const std::vector<const char*>& filenames, const std::vector<bool>& flip_vertically) {
 		std::shared_ptr<Texture> tex = std::make_shared<Texture>(filenames, flip_vertically);
 		textures.push_back(tex);
@@ -27,8 +29,8 @@ namespace Voyage {
 	}
 
 	void Loader::dispose() {
-		for(std::weak_ptr<RawModel>& vao : vaos) if(!vao.expired()) vao.lock().get()->dispose();
-		for(std::weak_ptr<Texture>& texture : textures) if(!texture.expired()) texture.lock().get()->dispose();
+		std::for_each(vaos.begin(), vaos.end(), [](const std::weak_ptr<RawModel>& vao) { if(!vao.expired()) vao.lock().get()->dispose(); });
+		std::for_each(textures.begin(), textures.end(), [](const std::weak_ptr<Texture>& texture) { if(!texture.expired()) texture.lock().get()->dispose(); });
 		vaos.clear();
 		textures.clear();
 	}

@@ -1,5 +1,5 @@
-#include "types.hpp"
-#include "loader.hpp"
+#include "Voyage/types.hpp"
+#include "Voyage/loader.hpp"
 
 namespace Voyage {
 

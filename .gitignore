@@ -1,2 +1,4 @@
 unused/
-
+build/*.o
+main
+main_d

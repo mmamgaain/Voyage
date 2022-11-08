@@ -1,6 +1,6 @@
-#include "fbo.hpp"
-#include "core/core.hpp"
-#include "maths.hpp"
+#include "Voyage/fbo.hpp"
+#include "Voyage/core.hpp"
+#include "Voyage/maths.hpp"
 
 namespace Voyage {
 

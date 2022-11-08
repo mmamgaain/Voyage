@@ -1,7 +1,11 @@
-#include "audio.hpp"
+#include "Voyage/audio.hpp"
+#include "openal/al.h"
 #include "openal/alext.h"
 #include "sndfile.h"
-#include "minimp3.h"
+#include "minimp3/minimp3.h"
+#include "minimp3/minimp3_ex.h"
+#include <cstdio>
+#include <string_view>
 
 namespace Voyage {
 
@@ -28,10 +32,13 @@ namespace Voyage {
 
 	void AudioMaster::setDistanceModel(int& model) { alDistanceModel(model); }
 
-	unsigned int AudioMaster::loadSound(const char* filename) {
-		unsigned int source = 0;
+	unsigned int AudioMaster::loadSound(const char* const filename) {
+		std::string_view file_ext(filename + strlen(filename) - 3, 2);
+		unsigned int buffer;
+		if(file_ext == "mp") buffer = loadSoundBufferMP3(filename);
+		else buffer = loadSoundBuffer(filename);
+		unsigned int source;
 		alGenSources(1, &source);
-		unsigned int buffer = loadSoundBuffer(filename);
 		alSourcei(source, AL_BUFFER, (unsigned int)buffer);
 		assert(alGetError() == AL_NO_ERROR && "Failed to setup sound source");
 		return buffer;
@@ -103,6 +110,31 @@ namespace Voyage {
 			return 0;
 		}
 		buffers.push_back(buffer);
+
+		return buffer;
+	}
+
+	unsigned int AudioMaster::loadSoundBufferMP3(const char* filename) {
+		unsigned int buffer;
+		mp3dec_t mp3d;
+		mp3dec_init(&mp3d);
+		mp3dec_file_info_t info;
+
+		if(mp3dec_load(&mp3d, filename, &info, NULL, NULL)) fprintf(stderr, "Error while loading %s MP3 file\n", filename);
+
+		alGenBuffers(1, &buffer);
+		alBufferData(buffer, info.channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, info.buffer, info.samples, info.hz);
+
+		int err = alGetError();
+		if(err != AL_NO_ERROR) {
+			fprintf(stderr, "OpenAL Error: %s\n", alGetString(err));
+			if(buffer && alIsBuffer(buffer)) alDeleteBuffers(1, &buffer);
+			delete info.buffer;
+			alDeleteBuffers(1, &buffer);
+			return 0;
+		}
+		buffers.push_back(buffer);
+		delete info.buffer;
 
 		return buffer;
 	}
