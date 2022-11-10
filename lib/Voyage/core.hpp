@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include <voyage.hpp>
 #include "Voyage/game_action.hpp"
 
@@ -13,12 +14,9 @@ namespace Voyage {
 
 			~Core() noexcept = default;
 
-			static void _error_callback(const int, const char*);
-
-			static void _set_mouse_coords(const double, const double);
-
 			static void getScreenResolution(int& width, int& height);
 
+			static void _set_mouse_coords(const double, const double);
 		protected:
 			static GLFWwindow* window;
 			static bool is_fullscreen, is_vsync, is_mouse_locked, is_mouse_moving;

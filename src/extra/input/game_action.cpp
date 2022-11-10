@@ -13,16 +13,18 @@ namespace Voyage {
 	GameAction::GameAction(const GameAction& game_action): amount(game_action.amount), key(game_action.key), name(game_action.name), behaviour(game_action.behaviour), state(game_action.state) {}
 
 	// Move constructor
-	GameAction::GameAction(GameAction&& game_action): amount(std::move(game_action.amount)), key(std::move(game_action.key)), behaviour(std::move(game_action.behaviour)), state(std::move(game_action.state)) { std::cout << "GameAction Moved!" << std::endl; name = game_action.name; }
+	GameAction::GameAction(GameAction&& game_action): amount(std::move(game_action.amount)), key(std::move(game_action.key)), behaviour(std::move(game_action.behaviour)), state(std::move(game_action.state)) {}
 
-	GameAction* GameAction::add_key_bind(const int key_code, const BEHAVIOURS behaviour, const std::string& name) {
+	GameAction::~GameAction() noexcept { keys.erase(key); }
+
+	GameAction* GameAction::add_key_bind(const int& key_code, const BEHAVIOURS behaviour, const char* const name) {
 		GameAction* action = new GameAction(key_code, behaviour, name);
 		if(keys.size() == 0) keys.reserve(5);
 		keys.emplace(key_code, action);
 		return action;
 	}
 
-	GameAction* GameAction::add_mouse_bind(const int mouse_code, const BEHAVIOURS behaviour, const std::string& name) {
+	GameAction* GameAction::add_mouse_bind(const int& mouse_code, const BEHAVIOURS behaviour, const char* const name) {
 		if(mouse_code < 0 || mouse_code > 8) { fprintf(stderr, "The mouse code provided %d belonging to key %s is incorrect. Please select from the approved mouse codes.\n", mouse_code, glfwGetKeyName(mouse_code, 0)); return nullptr; }
 		else {
 			GameAction* mouse = new GameAction(mouse_code, behaviour, name);

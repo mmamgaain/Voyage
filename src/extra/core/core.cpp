@@ -1,4 +1,5 @@
 #include "Voyage/core.hpp"
+#include "Voyage/game_action.hpp"
 #include "glfw/glfw3.h"
 
 namespace Voyage {
@@ -7,8 +8,6 @@ namespace Voyage {
 	GLFWwindow* Core::window;
 	int Core::width = 200, Core::height = 200;
 	bool Core::is_fullscreen = false, Core::is_vsync = true, Core::is_mouse_locked = false, Core::is_mouse_moving = false;
-
-	void Core::_error_callback(const int error, const char* description) { fputs(description, stderr); }
 
 	void Core::_set_mouse_coords(const double x, const double y) { mouseX = x; mouseY = y; }
 
@@ -19,10 +18,11 @@ namespace Voyage {
 		glfwWindowHint(GLFW_RESIZABLE, is_fullscreen ? GLFW_FALSE : GLFW_TRUE);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwSetErrorCallback(_error_callback);
+		glfwSetErrorCallback([](const int error, const char* description) { fputs(description, stderr); });
 		if(is_fullscreen) getScreenResolution(width, height);
 		window = glfwCreateWindow(width, height, "OpenGL Application", is_fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 		if(!window) { fprintf(stderr, "ERROR: GLFW Window could not be initialized\n"); glfwTerminate(); exit(EXIT_FAILURE); }
+		// glfwSetKeyCallback(window, GameAction::_key_callback);
 		glfwSetKeyCallback(window, GameAction::_key_callback);
 		glfwSetCursorPosCallback(window, GameAction::_mouse_position_callback);
 		glfwSetMouseButtonCallback(window, GameAction::_mouse_button_callback);

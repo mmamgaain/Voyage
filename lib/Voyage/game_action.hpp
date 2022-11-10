@@ -1,5 +1,6 @@
 #pragma once
 #include <voyage.hpp>
+#include "Voyage/core.hpp"
 
 /* #define DEFAULT_INITIAL_DARRAY_COLLECTION_SIZE 5
 #define DEFAULT_MINIMUM_STRING_REALLOCATION_SIZE 50
@@ -27,13 +28,11 @@ namespace Voyage {
 
 	class GameAction {
 		public:
-			GameAction(GameAction&& game_action);
+			static GameAction* add_key_bind(const int& key_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const char* const name = "Unknown");
 
-			~GameAction() noexcept = default;
+			static GameAction* add_mouse_bind(const int& mouse_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const char* const name = "Unknown");
 
-			static GameAction* add_key_bind(const int key_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const std::string& name = "Unknown");
-
-			static GameAction* add_mouse_bind(const int mouse_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const std::string& name = "Unknown");
+			~GameAction() noexcept;
 
 			float getAmount();
 
@@ -61,9 +60,10 @@ namespace Voyage {
 			std::string name;
 			BEHAVIOURS behaviour;
 			STATES state;
-
 			static std::unordered_map<int, GameAction*> keys;
 			static GameAction* mouses[9];
+
+			GameAction(GameAction&& game_action);
 
 			GameAction(const int key_code, const BEHAVIOURS behaviour, const std::string& name);
 
@@ -79,6 +79,5 @@ namespace Voyage {
 	};
 
 	std::ostream& operator<<(std::ostream& stream, const GameAction& action);
-
 }
 
