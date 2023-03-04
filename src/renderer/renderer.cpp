@@ -1,4 +1,6 @@
 #include "Voyage/renderer.hpp"
+#include "Voyage/raw_model.hpp"
+#include <memory>
 
 namespace Voyage {
 
@@ -14,36 +16,36 @@ namespace Voyage {
 
 	void Renderer::disableBackCulling() { glDisable(GL_CULL_FACE); }
 
-	void Renderer::renderTriangle(RawModel& model) const {
+	void Renderer::renderTriangle(const RawModel* model) const {
 		prepareRender(model);
 		drawTriangleCall(model);
 		finishRender(model);
 	}
 
-	void Renderer::prepareRender(const RawModel& model) const {
+	void Renderer::prepareRender(const RawModel* model) const {
 		if(MAX_BUFFER_SIZE == -1) glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &MAX_BUFFER_SIZE);
 
-		glBindVertexArray(model.getID());
-		if(model.isValidNumBuffers()) for(size_t i = 0; i < model.getNumBuffers(); i++) glEnableVertexAttribArray(i);
+		glBindVertexArray(model->getID());
+		if(model->isValidNumBuffers()) for(size_t i = 0; i < model->getNumBuffers(); i++) glEnableVertexAttribArray(i);
 		else {
 			std::vector<unsigned int> vbos;
 			for(int i = 0; i < MAX_BUFFER_SIZE; i++) {
 				int enabled = GL_FALSE;
 				glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &enabled);
 				if(enabled != GL_FALSE) { glEnableVertexAttribArray(i); vbos.push_back(i); }
-				else { model._setVBOs(vbos); break; }
+				else { model->_setVBOs(vbos); break; }
 			}
 		}
 	}
 
-	void Renderer::finishRender(const RawModel& model) const {
-		for(size_t i = 0; i < model.getNumBuffers(); i++) glDisableVertexAttribArray(i);
+	void Renderer::finishRender(const RawModel* model) const {
+		for(size_t i = 0; i < model->getNumBuffers(); i++) glDisableVertexAttribArray(i);
 		glBindVertexArray(0);
 	}
 
-	void Renderer::drawTriangleCall(const RawModel& model) const {
-		if(model.hasIndexBuffer()) glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, nullptr);
-		else glDrawArrays(GL_TRIANGLE_STRIP, 0, model.getVertexCount());
+	void Renderer::drawTriangleCall(const RawModel* model) const {
+		if(model->hasIndexBuffer()) glDrawElements(GL_TRIANGLES, model->getVertexCount(), GL_UNSIGNED_INT, nullptr);
+		else glDrawArrays(GL_TRIANGLE_STRIP, 0, model->getVertexCount());
 	}
 
 }

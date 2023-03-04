@@ -6,7 +6,15 @@ namespace Voyage {
 		public:
 			Source(const int& buffer, const glm::vec3& position = {0.0, 0.0, 0.0}, const glm::vec3& velocity = {0.0, 0.0, 0.0}, const bool& startPlaying = false);
 
+			Source(const Source& source);
+
+			Source(Source&& source);
+
 			~Source();
+
+			Source& operator=(const Source& source);
+
+			Source& operator=(Source&& source);
 
 			const glm::vec3& getPosition() const;
 

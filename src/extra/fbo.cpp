@@ -1,6 +1,5 @@
 #include "Voyage/fbo.hpp"
 #include "Voyage/core.hpp"
-#include "Voyage/maths.hpp"
 
 namespace Voyage {
 
@@ -34,7 +33,9 @@ namespace Voyage {
 		unbindFrameBuffer();
 	}
 
-	FrameBuffer::~FrameBuffer() {
+	FrameBuffer::~FrameBuffer() { dispose(); }
+
+	void FrameBuffer::dispose() {
 		if(colorTexture) {
 			glDeleteTextures(attachments, colorTexture);
 			delete[] colorTexture;
@@ -55,6 +56,48 @@ namespace Voyage {
 			delete reserve;
 			reserve = nullptr;
 		}
+		if(id) glDeleteFramebuffers(1, &id);
+	}
+
+	FrameBuffer::FrameBuffer(const FrameBuffer& fbo) {
+		if(this == &fbo) return;
+		dispose();
+
+		id = fbo.id;
+		width = fbo.width;
+		height = fbo.height;
+		samples = fbo.samples;
+		attachments = fbo.attachments;
+		depthTexture = fbo.depthTexture;
+		depthBuffer = fbo.depthBuffer;
+		colorTexture = fbo.colorTexture;
+		colorBuffer = fbo.colorBuffer;
+		dirty = fbo.dirty;
+		reserve = fbo.reserve;
+	}
+
+	FrameBuffer::FrameBuffer(FrameBuffer&& fbo) {
+		dispose();
+
+		id = fbo.id;
+		width = fbo.width;
+		height = fbo.height;
+		samples = fbo.samples;
+		attachments = fbo.attachments;
+		depthTexture = fbo.depthTexture;
+		depthBuffer = fbo.depthBuffer;
+		colorTexture = fbo.colorTexture;
+		colorBuffer = fbo.colorBuffer;
+		dirty = fbo.dirty;
+		reserve = fbo.reserve;
+
+		fbo.id = 0;
+		fbo.depthBuffer = 0;
+		fbo.depthTexture = 0;
+		fbo.colorBuffer = nullptr;
+		fbo.colorTexture = nullptr;
+		fbo.dirty = nullptr;
+		fbo.reserve = nullptr;
 	}
 
 	constexpr const bool FrameBuffer::isMultisampled() const { return samples != 1; }
@@ -113,14 +156,10 @@ namespace Voyage {
 	}
 
 	void FrameBuffer::init() {
-		if(!MAX_TARGETS) {
-			glGetIntegerv(GL_MAX_DRAW_BUFFERS, &MAX_TARGETS);
-			attachments = clamp<int>(attachments, 1, MAX_TARGETS);
-		}
-		if(!MAX_SAMPLES) {
-			glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &MAX_SAMPLES);
-			samples = clamp<int>(samples, 1, MAX_SAMPLES);
-		}
+		if(!MAX_TARGETS) glGetIntegerv(GL_MAX_DRAW_BUFFERS, &MAX_TARGETS);
+		if(!MAX_SAMPLES) glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &MAX_SAMPLES);
+		attachments = std::min<unsigned int>(attachments, MAX_TARGETS);
+		samples = std::min<unsigned int>(samples, MAX_SAMPLES);
 	}
 
 	void FrameBuffer::createColorTextureAttachments() {
@@ -194,11 +233,13 @@ namespace Voyage {
 		return reserve->colorTexture;
 	}
 
+	/* True - If atleast one is dirty.
+	 * False - If all are not dirty. */
 	bool FrameBuffer::isDirty() const { for(unsigned int i = 0; i < attachments; i++) if(dirty[i]) return true; return false; }
 
+	/* True - If all are dirty.
+	 * False - If atleast one is found not dirty. */
 	bool FrameBuffer::isAllDirty() const { for(unsigned int i = 0; i < attachments; i++) { if(!dirty[i]) { return false; } } return true; }
-
-	bool FrameBuffer::isAllNotDirty() const { for(unsigned int i = 0; i < attachments; i++) { if(dirty[i]) { return false; } } return true; }
 
 	inline void FrameBuffer::setDirty(const bool& flag) const { std::fill(dirty, dirty + attachments, flag); }
 

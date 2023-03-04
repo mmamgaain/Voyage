@@ -1,11 +1,17 @@
 #version 330
 
-out vec4 out_Color;
+in vec2 textureCoordsCurr, textureCoordsNext;
 
-uniform vec3 color;
+layout (location = 0) out vec4 out_Color;
+
+uniform sampler2D texture0;
+uniform float blend;
 
 void main(void) {
 
-	out_Color = vec4(color, 1.0);
+	vec4 colorCurr = texture(texture0,textureCoordsCurr),
+		 colorNext = texture(texture0, textureCoordsNext);
+
+	out_Color = mix(colorCurr, colorNext, blend);
 
 }

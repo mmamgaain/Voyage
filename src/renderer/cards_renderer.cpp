@@ -9,7 +9,7 @@ namespace Voyage {
 	CardsRenderer::~CardsRenderer() { delete shader; }
 
 	void CardsRenderer::render(const Cards& card) {
-		const RawModel& model = card.getModel();
+		const RawModel* model = &card.getModel();
 		shader->start();
 		renderer.prepareRender(model);
 		renderer.loadTexture2D(0, card.getTextureID());

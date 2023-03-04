@@ -1,14 +1,18 @@
 #include "Voyage/cards.hpp"
 #include "Voyage/maths.hpp"
+#include "Voyage/raw_model.hpp"
+#include <memory>
 
 namespace Voyage {
-	Cards::Cards(Loader& loader, const char* const texture, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): model(loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2)), texture(loader.loadTexture(texture)), textureID(0), position(position), isHUD(isHUD), rotation(rotation), scale(scale) {}
+	std::shared_ptr<RawModel> Cards::model = nullptr;
 
-	Cards::Cards(Loader& loader, const unsigned int textureID, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): model(loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2)), texture(nullptr), textureID(textureID), position(position), isHUD(isHUD), rotation(rotation), scale(scale) {}
+	Cards::Cards(Loader& loader, const char* const texture, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): texture(loader.loadTexture(texture)), textureID(0), position(position), isHUD(isHUD), rotation(rotation), scale(scale) { if(!model) model = loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2); }
 
-	Cards::~Cards() { model->dispose(); if(texture) texture->dispose(); }
+	Cards::Cards(Loader& loader, const unsigned int textureID, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): texture(nullptr), textureID(textureID), position(position), isHUD(isHUD), rotation(rotation), scale(scale) { if(!model) model = loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2); }
 
-	const RawModel& Cards::getModel() const noexcept { return *model; }
+	Cards::~Cards() { if(texture) texture->dispose(); }
+
+	const RawModel& Cards::getModel() noexcept { return *model; }
 
 	const Texture& Cards::getTexture() const { return *texture; }
 

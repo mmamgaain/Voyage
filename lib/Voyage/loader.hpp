@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <voyage.hpp>
 #include "Voyage/raw_model.hpp"
 #include "Voyage/texture.hpp"
@@ -21,6 +22,8 @@ namespace Voyage {
 
 			std::shared_ptr<RawModel> loadToVAO(const float* vertices, const int& dimension, const size_t& num_vertices, const size_t& num_indices, const unsigned int* indices = nullptr, const float* texture_coords = nullptr, const float* normals = nullptr, const float* tangents = nullptr, const float* bitangents = nullptr);
 
+			const unsigned int loadEmptyVBO(const unsigned int& floatCount) const;
+
 			std::shared_ptr<Texture> const loadTexture(const char* filename, const bool& flip_vertically = true);
 
 			std::shared_ptr<Texture> const loadTexture(const std::vector<const char*>& filenames, const std::vector<bool>& flip_vertically = {false, false, false, false, false, false});
@@ -39,7 +42,7 @@ namespace Voyage {
 
 			void storeDataInAttributeList(const unsigned int& attribNumber, const unsigned int& dimension, const std::vector<float>& data, std::vector<unsigned int>* vbos);
 
-			void storeDataInAttributeList(const unsigned int& attribNumber, const unsigned int& dimension, const float* data, const size_t& length, std::vector<unsigned int>* vbos);
+			void storeDataInAttributeList(const unsigned int& attribNumber, const unsigned int& dimension, const float* const data, const size_t& length, std::vector<unsigned int>* vbos);
 
 			void unbindVAO() const;
 	};

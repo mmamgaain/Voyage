@@ -1,7 +1,6 @@
+#pragma once
 #include <voyage.hpp>
-#include "Voyage/material.hpp"
 #include "renderer.hpp"
-#include "raw_model.hpp"
 #include "shader_program.hpp"
 #include "loader.hpp"
 #include "particle.hpp"
@@ -13,20 +12,21 @@ namespace Voyage {
 
 			~ParticleRenderer() noexcept;
 
-			void render(const std::vector<Particle> particles, const glm::mat4& view);
+			void render(const Particle& particle, const glm::mat4& view);
 
-			void dispose();
+			void render(std::unordered_map<const ParticleTexture*, std::vector<ParticleInstanced>>& it, const glm::mat4& view);
+
+			void dispose() noexcept;
 		private:
 			std::shared_ptr<RawModel> model;
 			ShaderProgram* shader;
 			Renderer renderer;
 			glm::mat4 dest;
+			unsigned int vboID;
 
 			void prepare();
 
 			glm::mat4& getModelViewMatrix(const glm::vec3& position, const glm::vec3& scale, const float& rotation, const glm::mat4& view);
-
-			void loadMaterial(const Material& material) const;
 
 			void finish();
 	};

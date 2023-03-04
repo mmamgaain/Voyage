@@ -35,7 +35,7 @@ namespace Voyage {
 
 			static void set_background_color(const float& red, const float& green, const float& blue, const float& alpha = 1.0);
 
-			virtual void update(double deltaTime) = 0;
+			virtual void update(const double& deltaTime) = 0;
 
 			virtual void dispose() = 0;
 

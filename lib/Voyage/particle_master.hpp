@@ -1,5 +1,8 @@
+#pragma once
 #include <voyage.hpp>
+#include "Voyage/particle.hpp"
 #include "Voyage/particle_renderer.hpp"
+#include "Voyage/particle_texture.hpp"
 
 namespace Voyage {
 	class ParticleMaster {
@@ -10,17 +13,15 @@ namespace Voyage {
 
 			static void init(const char* const vertex_file, const char* const fragment_file, Loader& loader, const glm::mat4& projection);
 
-			static void addParticle(const glm::vec3& position, const glm::vec3& velocity = {}, const glm::vec3& scale = {0.2, 0.2, 0.2}, const float& gravityEffect = 1.0, const float& lifeLength = 1.0, const float& rotation = 0.0);
-
-			static void update();
+			static void addParticle(const ParticleTexture* texture, const glm::vec3& position, const glm::vec3& velocity = {}, const glm::vec3& scale = {1.0, 1.0, 1.0}, const float& gravityEffect = 1.0, const float& lifeLength = 1.0, const float& rotation = 0.0);
 
 			static const int getNumParticles();
 
 			static void render(const glm::mat4& view);
 
 			static void dispose();
+			static std::unordered_map<const ParticleTexture*, std::vector<ParticleInstanced>> particles;
 		private:
-			static std::vector<Particle> particles;
 			static ParticleRenderer* renderer;
 	};
 }

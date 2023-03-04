@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <voyage.hpp>
 #include "Voyage/raw_model.hpp"
 
@@ -20,13 +21,13 @@ namespace Voyage {
 
 			static void disableBackCulling();
 
-			virtual void renderTriangle(RawModel& model) const;
+			virtual void renderTriangle(const RawModel* model) const;
 
-			virtual void prepareRender(const RawModel& model) const;
+			virtual void prepareRender(const RawModel* model) const;
 
-			virtual void finishRender(const RawModel& model) const;
+			virtual void finishRender(const RawModel* model) const;
 
-			virtual void drawTriangleCall(const RawModel& model) const;
+			virtual void drawTriangleCall(const RawModel* model) const;
 
 		private:
 			static int MAX_BUFFER_SIZE;

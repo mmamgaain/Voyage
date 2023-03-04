@@ -1,7 +1,5 @@
 #include "Voyage/skybox.hpp"
-#include "Voyage/renderer.hpp"
 #include "Voyage/core.hpp"
-#include "Voyage/imgui_interface.hpp"
 
 namespace Voyage {
 
@@ -81,7 +79,7 @@ namespace Voyage {
 
 	void SkyboxRenderer::prepareRender() {
 		shader->start();
-		renderer->prepareRender(*skybox);
+		renderer->prepareRender(skybox.get());
 		glDepthMask(GL_FALSE);
 		glDepthRange(0.9999999, 0.9999999);
 		renderer->loadTextureCubeMap(0, texture->getID());
@@ -90,7 +88,7 @@ namespace Voyage {
 	void SkyboxRenderer::finishRender() {
 		glDepthRange(0, 1);
 		glDepthMask(GL_TRUE);
-		renderer->finishRender(*skybox);
+		renderer->finishRender(skybox.get());
 		shader->stop();
 	}
 

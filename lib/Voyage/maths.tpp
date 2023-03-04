@@ -16,3 +16,7 @@ T lerp(const T& value, const T& min, const T& max) { return (max - min) * value 
 
 template<typename T>
 T map(const T& value, const T& min_src, const T& max_src, const T& min_dest, const T& max_dest) { return lerp<T>(norm<T>(value, min_src, max_src), min_dest, max_dest); }
+
+template<int T>
+glm::vec<T, float> getRandomVector(const float& min, const float& max) { glm::vec<T, float> _temp; for(int i = 0; i < T; ++i) _temp[i] = getRandom(min, max); return _temp; }
+

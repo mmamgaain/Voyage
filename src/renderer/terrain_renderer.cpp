@@ -33,7 +33,7 @@ namespace Voyage {
 	}
 
 	void TerrainRenderer::prepareRender(const Terrain& model) const {
-		renderer.prepareRender(model.get_const());
+		renderer.prepareRender(&model.get_const());
 		getTransformationMatrix(modelMatrix, {model.getX(), model.getHeight(), model.getZ()});
 		shader->loadUniform("transform", modelMatrix);
 		shader->loadUniform("clipPlane", 0, -1, 0, model.getHeight());
@@ -52,7 +52,7 @@ namespace Voyage {
 		shader->loadUniform("lightPos", light.getDirection());
 		for(const Terrain& terrain : model) {
 			prepareRender(terrain);
-			renderer.drawTriangleCall(terrain.get_const());
+			renderer.drawTriangleCall(&terrain.get_const());
 		}
 		shader->stop();
 	}

@@ -2,21 +2,21 @@
 #include "Voyage/maths.hpp"
 
 namespace Voyage {
-	float Texture::MAX_ANISOTROPY_LEVEL = 0.0;
+	float Texture::MAX_ANISOTROPY_LEVEL = 0.0F;
 
 	Texture::Texture(const char* filepath, const bool& flip_vertically, const float& anisotropic, const int& type): localBuffer(nullptr), filepath(filepath), width(0), height(0), bpp(0), type(type) {
-		if(MAX_ANISOTROPY_LEVEL == 0) glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &MAX_ANISOTROPY_LEVEL);
+		if(MAX_ANISOTROPY_LEVEL == 0.0F) glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &MAX_ANISOTROPY_LEVEL);
 		stbi_set_flip_vertically_on_load(flip_vertically);
 		localBuffer = stbi_load(filepath, &width, &height, &bpp, 4);
 		glGenTextures(1, &id);
 		glBindTexture(type, id);
+		glGenerateMipmap(type);
 		glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(type, GL_TEXTURE_WRAP_R, GL_REPEAT);
-		glGenerateMipmap(type);
-		glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY,std::min(anisotropic, MAX_ANISOTROPY_LEVEL) );
+		glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY, std::min(anisotropic, MAX_ANISOTROPY_LEVEL));
 		glTexImage2D(type, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
 		glBindTexture(type, 0);
 	}
@@ -44,6 +44,7 @@ namespace Voyage {
 	}
 
 	Texture::Texture(const Texture& texture) {
+		if(localBuffer) { stbi_image_free(localBuffer); glDeleteTextures(1, &id); }
 		this->localBuffer = texture.localBuffer;
 		this->filepath = texture.filepath;
 		this->width = texture.width;
@@ -54,13 +55,17 @@ namespace Voyage {
 	}
 
 	Texture::Texture(Texture&& texture) {
-		this->localBuffer = texture.localBuffer;
-		this->filepath = texture.filepath;
-		this->width = texture.width;
-		this->height = texture.height;
-		this->bpp = texture.bpp;
-		this->id = texture.id;
-		this->type = texture.type;
+		if(localBuffer) { stbi_image_free(localBuffer); glDeleteTextures(1, &id); }
+		localBuffer = texture.localBuffer;
+		filepath = texture.filepath;
+		width = texture.width;
+		height = texture.height;
+		bpp = texture.bpp;
+		id = texture.id;
+		type = texture.type;
+		texture.localBuffer = nullptr;
+		texture.filepath = nullptr;
+		texture.id = 0;
 	}
 
 	Texture::~Texture() { dispose(); }
@@ -80,46 +85,39 @@ namespace Voyage {
 	const bool Texture::isFilepath(const char* filepath) const { return strcmp(this->filepath, filepath); }
 
 	const Texture& Texture::operator=(Texture&& texture) {
-		if(this != &texture) {
-			// delete this->localBuffer;
-			stbi_image_free(localBuffer);
-			delete this->filepath;
-
-			this->localBuffer = texture.localBuffer;
-			this->filepath = texture.filepath;
-			this->width = texture.width;
-			this->height = texture.height;
-			this->bpp = texture.bpp;
-			this->id = texture.id;
-			this->type = texture.type;
-
-			texture.localBuffer = nullptr;
-			texture.filepath = nullptr;
-		}
+		if(this == &texture) return *this;
+		stbi_image_free(localBuffer);
+		glDeleteTextures(1, &id);
+		this->localBuffer = texture.localBuffer;
+		this->filepath = texture.filepath;
+		this->width = texture.width;
+		this->height = texture.height;
+		this->bpp = texture.bpp;
+		this->id = texture.id;
+		this->type = texture.type;
+		texture.localBuffer = nullptr;
+		texture.filepath = nullptr;
 		return *this;
 	}
 
 	const Texture& Texture::operator=(const Texture& texture) {
-		if(this != &texture) {
-			// delete this->localBuffer;
-			stbi_image_free(localBuffer);
-			delete this->filepath;
-
-			this->localBuffer = texture.localBuffer;
-			this->filepath = texture.filepath;
-			this->width = texture.width;
-			this->height = texture.height;
-			this->bpp = texture.bpp;
-			this->id = texture.id;
-			this->type = texture.type;
-		}
+		if(this == &texture) return *this;
+		stbi_image_free(localBuffer);
+		glDeleteTextures(1, &id);
+		this->localBuffer = texture.localBuffer;
+		this->filepath = texture.filepath;
+		this->width = texture.width;
+		this->height = texture.height;
+		this->bpp = texture.bpp;
+		this->id = texture.id;
+		this->type = texture.type;
 		return *this;
 	}
 
 	void Texture::dispose() {
 		if(!localBuffer) return;
-		glDeleteTextures(1, &id);
 		stbi_image_free(localBuffer);
+		glDeleteTextures(1, &id);
 		localBuffer = nullptr;
 	}
 

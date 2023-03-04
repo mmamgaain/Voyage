@@ -1,6 +1,7 @@
 #include "Voyage/loader.hpp"
 #include "Voyage/raw_model.hpp"
 #include "Voyage/texture.hpp"
+#include <memory>
 
 namespace Voyage {
 
@@ -56,6 +57,16 @@ namespace Voyage {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, length * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 	}
 
+	const unsigned int Loader::loadEmptyVBO(const unsigned int& floatCount) const {
+		unsigned int vboID;
+		glGenBuffers(1, &vboID);
+		glBindBuffer(GL_ARRAY_BUFFER, vboID);
+		glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(float), nullptr, GL_STREAM_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		return vboID;
+	}
+
 	std::shared_ptr<RawModel> Loader::loadToVAO(const float* vertices, const int& dimension, const size_t& num_vertices, const size_t& num_indices, const unsigned int* indices, const float* texture_coords, const float* normals, const float* tangents, const float* bitangents) {
 		unsigned int vaoID, i = 0, vertex_count = num_vertices * dimension;
 		std::vector<unsigned int> vbos;
@@ -99,7 +110,7 @@ namespace Voyage {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void Loader::storeDataInAttributeList(const unsigned int& attribNumber, const unsigned int& dimension, const float* data, const size_t& length, std::vector<unsigned int>* vbos) {
+	void Loader::storeDataInAttributeList(const unsigned int& attribNumber, const unsigned int& dimension, const float* const data, const size_t& length, std::vector<unsigned int>* vbos) {
 		unsigned int vboID;
 		glGenBuffers(1, &vboID);
 		vbos->push_back(vboID);

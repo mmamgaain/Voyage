@@ -3,6 +3,18 @@
 
 namespace Voyage {
 
+	unsigned short getBitCounts(int n) { unsigned short count = 0; for(; n > 0; n >>= 1) count += (n & 1); return count; }
+
+	bool isEven(const int& val) { return !(val & 1); }
+
+	float roundToPlaces(const float& value, const unsigned int& places) { float mult = (float)pow(10, places); return (round(value * mult) / mult); }
+
+	int roundNearest(const float& value, const unsigned int& nearest) { return round(value / nearest) * nearest; }
+
+	bool inRange(const float& value, const float& min, const float& max) { return value >= fmin(min, max) && value <= fmax(min, max); }
+
+	float getRandom(const float& min, const float& max) { return (float)(min + (rand() / (float)RAND_MAX) * (max - min)); }
+
 	void getTransformationMatrix(glm::mat4& dest, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) {
 		dest = glm::identity<glm::mat4>();
 		dest = glm::translate(dest, position);

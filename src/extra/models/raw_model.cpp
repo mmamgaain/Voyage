@@ -34,14 +34,23 @@ namespace Voyage {
 		return stream;
 	}
 
+	void RawModel::addInstancedAttribute(const unsigned int& vboID, const unsigned int& attribute, const unsigned int& dimension, const unsigned int& instancedDataLength, const long& offset) const {
+		glBindBuffer(GL_ARRAY_BUFFER, vboID);
+		glBindVertexArray(vao_id);
+		glVertexAttribPointer(attribute, dimension, GL_FLOAT, GL_FALSE, instancedDataLength * sizeof(float), (const void*)offset);
+		glVertexAttribDivisor(attribute, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
+	void RawModel::_setVBOs(const std::vector<unsigned int>& vbos) const { this->vbos.reserve(vbos.size()); }
+
 	void RawModel::dispose() {
 		if(vao_id == -1) return;
 		vao_id = -1;
 		glDeleteVertexArrays(1, &vao_id);
 		for(unsigned int vbo : vbos) glDeleteBuffers(1, &vbo);
 	}
-
-	void RawModel::_setVBOs(const std::vector<unsigned int>& vbos) const { this->vbos.reserve(vbos.size()); }
 
 	// Raw Model declarations end
 

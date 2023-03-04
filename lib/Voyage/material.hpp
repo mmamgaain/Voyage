@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <voyage.hpp>
 #include "Voyage/texture.hpp"
 
@@ -8,7 +9,7 @@ namespace Voyage {
 			float shineDamper = 1, specularReflectivity = 0, transparency = 0, enviroRefractivity = 0.5, fresnelPower = 2;
 			bool isDoubleSided = false, hasFresnel = true;
 
-			Material(const glm::vec3& diffuse = {0, 0, 0}, const glm::vec3& ambient = {0, 0, 0}, const glm::vec3& specular = {0, 0, 0}, Texture* texture = 0);
+			Material(const glm::vec3& diffuse = {0, 0, 0}, const glm::vec3& ambient = {0, 0, 0}, const glm::vec3& specular = {0, 0, 0}, std::shared_ptr<Texture> texture = 0);
 
 			Material(const Material& material);
 
@@ -24,11 +25,11 @@ namespace Voyage {
 
 			const glm::vec2& getRows() const;
 
-			Texture* const getTexture() const;
+			const Texture& getTexture() const;
 
-			Texture* const getNormalMap() const;
+			const Texture& getNormalMap() const;
 
-			Texture* const getSpecularMap() const;
+			const Texture& getSpecularMap() const;
 
 			void setDiffuseColor(const glm::vec3& diffuse);
 
@@ -44,11 +45,11 @@ namespace Voyage {
 
 			void setRows(const glm::vec2& rows);
 
-			void setTexture(Texture* const texture);
+			void setTexture(std::shared_ptr<Texture> const texture);
 
-			void setNormalMap(Texture* const normal);
+			void setNormalMap(std::shared_ptr<Texture> const normal);
 
-			void setSpecularMap(Texture* const specular);
+			void setSpecularMap(std::shared_ptr<Texture> const specular);
 
 			const bool hasTexture() const;
 
@@ -64,7 +65,7 @@ namespace Voyage {
 		private:
 			static const unsigned int NO_TEXTURE = 0;
 			glm::vec3 diffuse, ambient, specular;
-			Texture *texture, *normalMap, *specularMap;
+			std::shared_ptr<Texture> texture, normalMap, specularMap;
 			glm::vec2 rows;
 	} Material;
 }

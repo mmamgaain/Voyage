@@ -1,10 +1,22 @@
+#pragma once
 #include <voyage.hpp>
-#include "Voyage/material.hpp"
+#include "Voyage/particle_texture.hpp"
+#include "Voyage/texture.hpp"
 
 namespace Voyage {
+	typedef struct ParticleProperties {
+		glm::vec3 position, velocity, scale;
+		float gravityEffect, lifeLength, rotation, elapsedTime;
+		ParticleTexture* texture;
+
+		ParticleProperties(const glm::vec3& position, const glm::vec3& velocity = {}, const glm::vec3& scale = {1.0F, 1.0F, 1.0F}, const float& gravityEffect = 1.0, const float& lifeLength = 1.0, const float& rotation = 0.0, ParticleTexture* texture = nullptr);
+
+		~ParticleProperties() noexcept = default;
+	} ParticleProperties;
+
 	class Particle {
 		public:
-			Particle(const glm::vec3& position, const glm::vec3& velocity = {}, const glm::vec3& scale = {1.0F, 1.0F, 1.0F}, const float& gravityEffect = 1.0, const float& lifeLength = 1.0, const float& rotation = 0.0);
+			Particle(const ParticleProperties& props);
 
 			~Particle() noexcept = default;
 
@@ -28,14 +40,30 @@ namespace Voyage {
 
 			const glm::vec3& getScale() const;
 
-			void setMaterial(const Material& material);
-
-			const Material& getMaterial() const;
+			const ParticleTexture* getTexture() const;
 
 			const float& getRotation() const;
 		private:
+			ParticleProperties props;
+	};
+
+	class ParticleInstanced {
+		public:
 			glm::vec3 position, velocity, scale;
 			float gravityEffect, lifeLength, rotation, elapsedTime;
-			Material material;
+			mutable glm::vec2 texOffsetCurr, texOffsetNext;
+			mutable unsigned int numTexRows, numTexCols;
+			mutable float blend;
+
+			ParticleInstanced(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const unsigned int& numTexRows = 1, const unsigned int& numTexCols = 1);
+
+			~ParticleInstanced() noexcept = default;
+
+			const bool update();
+		private:
+			void updateTexCoords();
+
+			void setTextureOffset(glm::vec2& offset, const int& index);
 	};
+
 }

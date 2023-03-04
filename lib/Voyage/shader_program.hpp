@@ -26,6 +26,8 @@ namespace Voyage {
 
 			void loadUniform(const char* const name, const int& value);
 
+			void loadUniform(const char* const name, const unsigned int& value);
+
 			void loadUniform(const char* const name, const bool& value);
 
 			void loadUniform(const char* const name, const glm::vec2& value);
@@ -34,13 +36,15 @@ namespace Voyage {
 
 			void loadUniform(const char* const name, const glm::vec4& value);
 
+			void loadUniform(const char* const name, const float& x, const float& y);
+
 			void loadUniform(const char* const name, const float& x, const float& y, const float& z);
 
 			void loadUniform(const char* const name, const float& x, const float& y, const float& z, const float& w);
 
-			void loadUniform(const char* const name, const glm::mat3& value);
+			void loadUniform(const char* const name, const glm::mat3& value, const bool& to_be_transposed = false);
 
-			void loadUniform(const char* const name, const glm::mat4& value);
+			void loadUniform(const char* const name, const glm::mat4& value, const bool& to_be_transposed = false);
 
 			bool remapTextureSampleName(const unsigned int& location, const char* const name) const;
 
@@ -48,8 +52,7 @@ namespace Voyage {
 		private:
 			unsigned int id, num_textures;
 			mutable std::unordered_map<const char*, int> uniformLocations;
-			static unsigned int DEFAULT_NUM_TEXTURES;
-			static int MAX_TEXTURE_UNITS;
+			static unsigned int DEFAULT_NUM_TEXTURES, MAX_TEXTURE_UNITS;
 
 			static unsigned int loadShader(const char* const source, unsigned int type);
 

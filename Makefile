@@ -13,8 +13,8 @@ precompiled_dir := $(o_dir)precompiled/
 precompiled_files := $(shell find $(precompiled_dir) -type f)
 lib_dir := lib/
 src_dir := src/
-final_switches := -Wall -pthread -ldl -lm -xc++ --std=c++17 -O3# -lGL -lXrandr -lXxf86vm -lXi -lXinerama -lX11 -lrt
-object_switches := -c -O3 -xc++ --std=c++17
+final_switches := -Wall -pthread -ldl -lm -xc++ --std=c++17 -O2# -lGL -lXrandr -lXxf86vm -lXi -lXinerama -lX11 -lrt
+object_switches := -c -O2 -xc++ --std=c++17
 debug_object_switches := $(object_switches) -g -D_DEBUG
 src_files := $(shell find $(src_dir) -type f -name "*.cpp")
 header_files := $(shell find $(lib_dir)Voyage/ -type f -name "*.hpp")
@@ -25,7 +25,7 @@ out_pch_out := $(lib_dir)Voyage.hpp.gch
 o_files := $(src_files:.cpp=.o)
 debug_o_files := $(src_files:.cpp=_d.o)
 export_proj_name := ../Voyage_project/
-export_mainfile_placeholder := "// Welcome to a new Voyage Project.\n\#include <Voyage/core.hpp>\n\nclass Main : public Voyage::Core {\n\tpublic:\n\t\tvoid update(double deltaTime) override {}\n\n\t\tvoid dispose() override {}\n\n\tprivate:\n}\n\nint main() {\n\tMain main_instance;\n\treturn 0;\n}\n"
+export_mainfile_placeholder := "// Welcome to a new Voyage Project.\n#include "Voyage/core.hpp"\n// #include "Voyage.hpp"\n\nusing namespace Voyage;\n\nclass Main : public Voyage::Core {\n\tpublic:\n\t\tMain() {}\n\n\t\tvoid update(double deltaTime) override {}\n\n\t\tvoid dispose() override {}\n\n\tprivate:\n};\n\nint main() {\n\tMain main_instance;\n\treturn 0;\n}\n\n"
 FILTER_OUT = $(foreach v,$(2),$(if $(findstring $(1),$(v)),,$(v)))
 # DECLARING GLOBAL VARIABLES ENDED #####
 
@@ -56,8 +56,8 @@ compile_as_dynamic_library: dynamic_library_init $(out_pch_out) $(debug_o_files)
 	@echo "Compiling Voyage as dynamic library $(abspath libvoyage.so)" && $(cc) -I$(lib_dir) -shared $(addprefix $(o_dir),$(notdir $(debug_o_files))) -o libvoyage.so
 
 # Rule to compile and export the project to be incorporated into other projects
-export: $(in_pch_out) $(out_pch_out) compile_debug_objects
-	@echo "Creating New Project '$(abspath $(export_proj_name))...'" && mkdir $(export_proj_name) $(export_proj_name)src/ && echo "Writing a biolerplate main file '$(abspath $(export_proj_name))/src/main.cpp'" && echo $(export_mainfile_placeholder) > $(export_proj_name)src/main.cpp; echo "Creating and moving important assets from main project to export project" && cp -t $(export_proj_name) -r $(o_dir) $(lib_dir) res/ Makefile .vimspector.json .ycm_extra_conf.py && mkdir $(export_proj_name)$(o_dir)precompiled/voyage/ $(export_proj_name)$(lib_dir)voyage/ && mv -t $(export_proj_name)$(o_dir)precompiled/voyage/ $(export_proj_name)$(o_dir)*.o && cp -t $(export_proj_name)$(lib_dir) --parents $(addprefix src/, $(header_files))
+export: $(in_pch_out) $(out_pch_out) compile_as_static_library compile_debug_objects
+	@echo "Creating New Project '$(abspath $(export_proj_name))...'" && mkdir $(export_proj_name) $(export_proj_name)src/ && echo "Writing a biolerplate main file '$(abspath $(export_proj_name))/src/main.cpp'" && echo $(export_mainfile_placeholder) > $(export_proj_name)src/main.cpp; echo "Creating and moving important assets from main project to export project" && cp -t $(export_proj_name) -r $(o_dir) $(lib_dir) res/ Makefile .vimspector.json .ycm_extra_conf.py && mv -t $(export_proj_name)$(precompiled_dir) libvoyage.a
 
 # Pattern rule to just compile the source files and create an executable in the current directory
 compile_release_executable: compile_objects

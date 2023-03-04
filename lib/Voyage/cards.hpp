@@ -13,7 +13,7 @@ namespace Voyage {
 
 			~Cards();
 
-			const RawModel& getModel() const noexcept;
+			static const RawModel& getModel() noexcept;
 
 			const Texture& getTexture() const;
 
@@ -31,7 +31,7 @@ namespace Voyage {
 
 			const glm::vec3& getScale() const;
 		private:
-			std::shared_ptr<RawModel> model;
+			static std::shared_ptr<RawModel> model;
 			std::shared_ptr<Texture> texture;
 			unsigned int textureID;
 			glm::vec3 position, rotation, scale;

@@ -34,11 +34,10 @@ namespace Voyage {
 	}
 
 	float GameAction::getAmount() {
-		if(amount == 0) return amount;
+		if(amount == 0) return 0.0F;
 		const float retVal = amount;
 		if(state == GAME_INPUT_STATE_RELEASED) amount = 0;
 		else if(behaviour == GAME_INPUT_BEHAVIOUR_DETECT_INITIAL_PRESS_ONLY) { state = GAME_INPUT_STATE_WAITING_FOR_RELEASE; amount = 0; }
-
 		return retVal;
 	}
 

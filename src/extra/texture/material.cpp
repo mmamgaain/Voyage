@@ -3,7 +3,7 @@
 
 namespace Voyage {
 
-	Material::Material(const glm::vec3& diffuse, const glm::vec3& ambient, const glm::vec3& specular, Texture* texture): diffuse(diffuse), ambient(ambient), specular(specular), texture(texture), normalMap(0), specularMap(0), shineDamper(1), specularReflectivity(0), transparency(0), enviroRefractivity(0.5), fresnelPower(2), isDoubleSided(false), hasFresnel(true), rows({}) {}
+	Material::Material(const glm::vec3& diffuse, const glm::vec3& ambient, const glm::vec3& specular, std::shared_ptr<Texture> texture): diffuse(diffuse), ambient(ambient), specular(specular), texture(texture), normalMap(0), specularMap(0), shineDamper(1), specularReflectivity(0), transparency(0), enviroRefractivity(0.5), fresnelPower(2), isDoubleSided(false), hasFresnel(true), rows({}) {}
 
 	Material::Material(const Material& material): diffuse(material.diffuse), ambient(material.ambient), specular(material.specular), texture(material.texture), normalMap(material.normalMap), specularMap(material.specularMap), shineDamper(1), specularReflectivity(0), transparency(0), enviroRefractivity(0.5), fresnelPower(2), isDoubleSided(false), hasFresnel(true), rows({}) {}
 
@@ -17,11 +17,11 @@ namespace Voyage {
 
 	const glm::vec2& Material::getRows() const { return rows; }
 
-	Texture* const Material::getTexture() const { return texture; }
+	const Texture& Material::getTexture() const { return *texture; }
 
-	Texture* const Material::getNormalMap() const { return normalMap; }
+	const Texture& Material::getNormalMap() const { return *normalMap; }
 
-	Texture* const Material::getSpecularMap() const { return specularMap; }
+	const Texture& Material::getSpecularMap() const { return *specularMap; }
 
 	void Material::setDiffuseColor(const glm::vec3& diffuse) { this->diffuse = diffuse; }
 
@@ -37,11 +37,11 @@ namespace Voyage {
 
 	void Material::setRows(const glm::vec2& rows) { this->rows = rows; }
 
-	void Material::setTexture(Texture* const texture) { this->texture = texture; }
+	void Material::setTexture(std::shared_ptr<Texture> const texture) { this->texture = texture; }
 
-	void Material::setNormalMap(Texture* const normal) { this->normalMap = normal; }
+	void Material::setNormalMap(std::shared_ptr<Texture> const normal) { this->normalMap = normal; }
 
-	void Material::setSpecularMap(Texture* const specular) { this->specularMap = specular; }
+	void Material::setSpecularMap(std::shared_ptr<Texture> const specular) { this->specularMap = specular; }
 
 	const bool Material::hasTexture() const { return texture != nullptr && texture->getID(); }
 

@@ -18,7 +18,72 @@ namespace Voyage {
 		if(startPlaying) play();
 	}
 
+	Source::Source(const Source& source) {
+		if(this == &source) return;
+		if(id) dispose();
+
+		id = source.id;
+		position = source.position;
+		velocity = source.velocity;
+		rolloffFactor = source.rolloffFactor;
+		referenceDist = source.referenceDist;
+		maxDistance = source.maxDistance;
+		volume = source.volume;
+		playing = source.playing;
+		looping = source.looping;
+	}
+
+	Source::Source(Source&& source) {
+		if(id) dispose();
+
+		id = source.id;
+		position = source.position;
+		velocity = source.velocity;
+		rolloffFactor = source.rolloffFactor;
+		referenceDist = source.referenceDist;
+		maxDistance = source.maxDistance;
+		volume = source.volume;
+		playing = source.playing;
+		looping = source.looping;
+
+		source.id = 0;
+	}
+
 	Source::~Source() { dispose(); }
+
+	Source& Source::operator=(const Source& source) {
+		if(this == &source) return *this;
+		if(id) dispose();
+
+		id = source.id;
+		position = source.position;
+		velocity = source.velocity;
+		rolloffFactor = source.rolloffFactor;
+		referenceDist = source.referenceDist;
+		maxDistance = source.maxDistance;
+		volume = source.volume;
+		playing = source.playing;
+		looping = source.looping;
+
+		return *this;
+	}
+
+	Source& Source::operator=(Source&& source) {
+		if(id) dispose();
+
+		id = source.id;
+		position = source.position;
+		velocity = source.velocity;
+		rolloffFactor = source.rolloffFactor;
+		referenceDist = source.referenceDist;
+		maxDistance = source.maxDistance;
+		volume = source.volume;
+		playing = source.playing;
+		looping = source.looping;
+
+		source.id = 0;
+		return *this;
+	}
 
 	const glm::vec3& Source::getPosition() const { return position; }
 

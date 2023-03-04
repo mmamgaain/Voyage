@@ -19,6 +19,7 @@
 #include "Voyage/model_renderer.hpp"
 #include "Voyage/particle_system.hpp"
 #include "Voyage/skybox.hpp"
+#include "Voyage/particle_texture.hpp"
 #include "Voyage/particle_renderer.hpp"
 #include "Voyage/texture.hpp"
 #include "Voyage/terrain.hpp"

@@ -22,7 +22,7 @@ namespace Voyage {
 		shader->loadUniform("lightDir", light.getDirection());
 		shader->loadUniform("lightCol", light.getColor());
 		loadMaterial(model.getMaterial());
-		for(auto mod : model.getModels()) renderer.renderTriangle(mod);
+		for(auto mod : model.getModels()) renderer.renderTriangle(&mod);
 		shader->stop();
 	}
 

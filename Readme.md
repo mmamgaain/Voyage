@@ -37,16 +37,21 @@ To start using the project, we'll have to include the project header files. We c
 If you've run `make export` to create the entire project skeleton, you'll find a stock main file at `src/main.cpp` looking something like:
 ``` c++
 // Welcome to a new Voyage Project.
-#include <Voyage/core.hpp>
+#include "Voyage/core.hpp"
+// #include "Voyage.hpp"
 
-class Main : public Voyage::Core {
+using namespace Voyage;
+
+class Main : public Core {
 	public:
+		Main() {}
+
 		void update(double deltaTime) override {}
 
 		void dispose() override {}
 
 	private:
-}
+};
 
 int main() {
 	Main main_instance;
@@ -56,16 +61,18 @@ int main() {
 The update method is the part of the game loop that's exposed to the developer. All of the game logic goes in here. To initialise a basic game loop, you'll probably want a constructor of the Main class like this:
 ```c++
 Main() {
-	Voyage::Core::set_fullscreen(true); // Sets the window as a fullscreen window. This call has to be before call to init().
-										// All calls after init() are ignored. DEFAULT: false
-	Voyage::Core::set_vsync(0); // Sets the VSync OFF. This call has to be before call to init().
-								// All calls after init() are ignored. DEFAULT: 1
-	Voyage::Core::init(); // init() initialises GLFW and OpenGL. It creates Event hooks and gets them listening to event calls
-	Voyage::Core::set_background_color(1, 1, 1); // Sets the Background Color to White(1, 1, 1). Cannot be called before init()
-	Voyage::Core::hide_and_lock_cursor(true); // Hides the visible mouse cursor icon and locks it in place in the center of the screen.
-											  // This will be more useful when operating with a 3D Camera.
+	Core::set_fullscreen(true); 		 // Sets the window as a fullscreen window. This call has to be before call to init().
+										 // All calls after init() are ignored. DEFAULT: false
+	Core::set_vsync(0); 				 // Sets the VSync OFF. This call has to be before call to init().
+										 // All calls after init() are ignored. DEFAULT: 1
+	Core::init(); 						 // init() initialises GLFW and OpenGL. It creates Event
+										 // hooks and gets them listening to event calls
+	Core::set_background_color(1, 1, 1); // Sets the Background Color to White(1, 1, 1). Cannot be called before init()
+	Core::hide_and_lock_cursor(true); 	 // Hides the visible mouse cursor icon and locks it in place in the center of the screen.
+									  	 // This will be more useful when operating with a 3D Camera.
 
-	Voyage::Core::startGame(); // The function that kickstarts the game-loop. It should be called at the end of the constructor.
+	Core::startGame(); 					 // The function that kickstarts the game-loop.
+										 // It should be called at the end of the constructor.
 }
 ```
 
@@ -78,14 +85,14 @@ The class named `GameAction` represents the keyboard and mouse action instance. 
 #include <Voyage/core.hpp>
 #include <Voyage/game_action.hpp>
 
-class Main : public Voyage::Core {
+class Main : public Core {
 	public:
 		Main() {
 			// ...
-			exit = Voyage::GameAction::add_key_bind(GLFW_KEY_ESCAPE); // Methods like add_key_bind, add_mouse_bind allow
-																	  // the creation of user initiated events
+			exit = GameAction::add_key_bind(GLFW_KEY_ESCAPE); // Methods like add_key_bind, add_mouse_bind allow
+															  // the creation of user initiated events
 
-			Voyage::Core::startGame();
+			Core::startGame();
 		}
 
 		void update(double deltaTime) override {
@@ -107,12 +114,16 @@ int main() {
 
 The methods for adding key and mouse listener are:
 ```c++
-// The keycode is any GLFW keycode for keyboard
+// key_code - The keycode is any GLFW keycode for keyboard
+// behaviour - GAME_INPUT_BEHAVIOUR_NORMAL (default), GAME_INPUT_BEHAVIOUR_DETECT_INITIAL_PRESS_ONLY (Continuously pressing this key will only register this key having been pressed once)
+// name - Debug feature. Completely optional
 GameAction* add_key_bind(const int& key_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const char* const name = "Unknown");
 
-// The mouse keycodes are integer constants with prefixes for different type of mouse actions.
+// mouse_code - The mouse keycodes are integer constants with prefixes for different type of mouse actions.
 // 1. MB_ prefix - Mouse Button actions. Ex, MB_LEFT, MB_RIGHT, MB_MIDDLE.
 // 2. MM_ prefix - Mouse Movement actions. Ex, MM_LEFT, MM_RIGHT, MM_UP, MM_DOWN.
 // 3. MW_ prefix - Mouse Wheel actions. Ex, MW_UP, MW_DOWN.
+// behaviour - GAME_INPUT_BEHAVIOUR_NORMAL (default), GAME_INPUT_BEHAVIOUR_DETECT_INITIAL_PRESS_ONLY (Continuously pressing this key will only register this key having been pressed once)
+// name - Debug feature. Completely optional
 GameAction* add_mouse_bind(const int& mouse_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const char* const name = "Unknown");
 ```

@@ -27,6 +27,8 @@ namespace Voyage {
 
 			friend std::ostream& operator<<(std::ostream& stream, const RawModel& model) noexcept;
 
+			void addInstancedAttribute(const unsigned int& vboID, const unsigned int& attribute, const unsigned int& dimension, const unsigned int& instancedDataLength, const long& offset) const;
+
 			void _setVBOs(const std::vector<unsigned int>& vbos) const;
 
 			void dispose();
