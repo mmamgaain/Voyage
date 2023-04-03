@@ -12,6 +12,14 @@ namespace Voyage {
 		public:
 			SkyboxRenderer() = delete;
 
+			SkyboxRenderer(const SkyboxRenderer& renderer) = delete;
+
+			SkyboxRenderer(SkyboxRenderer&& renderer) = delete;
+
+			SkyboxRenderer& operator=(const SkyboxRenderer& other) = delete;
+
+			SkyboxRenderer& operator=(SkyboxRenderer&& other) = delete;
+
 			~SkyboxRenderer() = delete;
 
 			static void init(const char* vertex_file, const char* fragment_file, const glm::mat4& projection, Loader& loader, const std::vector<const char*>& skybox_textures);

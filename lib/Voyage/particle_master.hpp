@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include <voyage.hpp>
 #include "Voyage/particle.hpp"
 #include "Voyage/particle_renderer.hpp"
@@ -20,6 +21,7 @@ namespace Voyage {
 			static void render(const glm::mat4& view);
 
 			static void dispose();
+			static size_t pool_size;
 			static std::unordered_map<const ParticleTexture*, std::vector<ParticleInstanced>> particles;
 		private:
 			static ParticleRenderer* renderer;

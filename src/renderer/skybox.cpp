@@ -65,11 +65,8 @@ namespace Voyage {
 	}
 
 	void SkyboxRenderer::setSkyTextures(Loader& loader, const std::vector<const char*>& skybox_textures) {
-		std::shared_ptr<Texture> view = loader.loadTexture(skybox_textures);
-		if(view) {
-			texture->dispose();
-			texture = view;
-		}
+		std::shared_ptr<Texture> newTex = std::move(loader.loadTexture(skybox_textures));
+		if(newTex) texture = std::move(newTex);
 	}
 
 	void SkyboxRenderer::setSkyRotation(const SKYBOX_ROTATION_DIRECTION& direction, const float& speed) {

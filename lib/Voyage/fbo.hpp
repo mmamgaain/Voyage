@@ -15,11 +15,15 @@ namespace Voyage {
 			 * depth_at - The attachment type for the depth attachment.
 			 * num_samples - The number of samples per pixel being used for this FrameBuffer. Default (and minimum) value is 1 and is considered non-multisampled.
 			 * num_attachments - The number of color attachments to be used in this FrameBuffer. Default (and minimum) value is 1. */
-			FrameBuffer(const unsigned int& width, const unsigned int& height, const COLOR_ATTACHMENT_TYPE& color_at = COLOR_ATTACHMENT_TEXTURE, const DEPTH_ATTACHMENT_TYPE& depth_at = DEPTH_ATTACHMENT_BUFFER, const unsigned int& num_samples = 1, const unsigned int& num_attachments = 1);
+			FrameBuffer(const uint32_t& width, const uint32_t& height, const COLOR_ATTACHMENT_TYPE& color_at = COLOR_ATTACHMENT_TEXTURE, const DEPTH_ATTACHMENT_TYPE& depth_at = DEPTH_ATTACHMENT_BUFFER, const uint32_t& num_samples = 1, const uint32_t& num_attachments = 1);
 
-			FrameBuffer(const FrameBuffer& fbo);
+			FrameBuffer(const FrameBuffer& fbo) noexcept;
 
-			FrameBuffer(FrameBuffer&& fbo);
+			FrameBuffer(FrameBuffer&& fbo) noexcept;
+
+			FrameBuffer& operator=(const FrameBuffer& other) noexcept;
+
+			FrameBuffer& operator=(FrameBuffer&& other) noexcept;
 
 			~FrameBuffer();
 
@@ -28,20 +32,20 @@ namespace Voyage {
 
 			void resolveToFBO(FrameBuffer* fbo = nullptr)  const;
 
-			void resolveToScreen(const unsigned int& attachment = 0) const;
+			void resolveToScreen(const uint32_t& attachment = 0) const;
 
 			void bindFrameBuffer() const;
 
 			static void unbindFrameBuffer();
 
-			const unsigned int getColorTexture(const unsigned int& target = 0);
+			const uint32_t getColorTexture(const uint32_t& target = 0);
 
-			const unsigned int getDepthTexture();
+			const uint32_t getDepthTexture();
 
 			void dispose();
 		private:
-			unsigned int id, width, height, samples, attachments, depthTexture, depthBuffer;
-			unsigned int *colorTexture, *colorBuffer;
+			uint32_t id, width, height, samples, attachments, depthTexture, depthBuffer;
+			uint32_t *colorTexture, *colorBuffer;
 			bool *dirty;
 			FrameBuffer *reserve;
 			static int MAX_TARGETS, MAX_SAMPLES;
@@ -58,9 +62,9 @@ namespace Voyage {
 
 			void createDepthBufferAttachment();
 
-			const unsigned int& resolveToTexture(const unsigned int& attachment = 0);
+			const uint32_t& resolveToTexture(const uint32_t& attachment = 0);
 
-			const unsigned int* resolveToTextures();
+			const uint32_t* resolveToTextures();
 
 			bool isDirty() const;
 

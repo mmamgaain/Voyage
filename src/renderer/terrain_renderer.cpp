@@ -6,7 +6,7 @@
 
 namespace Voyage {
 
-	TerrainRenderer::TerrainRenderer(const char* const vertex_file, const char* const fragment_file, const glm::mat4& projection): shader(new ShaderProgram(vertex_file, fragment_file, 5)), modelMatrix(glm::identity<glm::mat4>()) {
+	TerrainRenderer::TerrainRenderer(const char* const vertex_file, const char* const fragment_file, const glm::mat4& projection): shader(new ShaderProgram(vertex_file, fragment_file, 5)), modelMatrix(glm::mat4(1.0)) {
 		shader->start();
 		shader->loadUniform("project", projection);
 		shader->remapTextureSampleName(0, "material.diffuse");
@@ -20,20 +20,20 @@ namespace Voyage {
 	TerrainRenderer::~TerrainRenderer() { dispose(); }
 
 	void TerrainRenderer::loadMaterial(const MaterialTerrain& material) const {
-		renderer.loadTexture2D(0, material.diffuse->getID());
-		renderer.loadTexture2D(1, material.red->getID());
-		renderer.loadTexture2D(2, material.green->getID());
-		renderer.loadTexture2D(3, material.blue->getID());
-		renderer.loadTexture2D(4, material.blend_map->getID());
+		renderer.loadTexture2D(0, material.getDiffuseID());
+		renderer.loadTexture2D(1, material.getRedID());
+		renderer.loadTexture2D(2, material.getGreenID());
+		renderer.loadTexture2D(3, material.getBlueID());
+		renderer.loadTexture2D(4, material.getBlendMapID());
 		shader->loadUniform("material.shineDamper", material.shineDamper);
 		shader->loadUniform("material.reflectivity", material.reflectivity);
 		shader->loadUniform("material.tiling", 80.0F);
-		shader->loadUniform("material.multitextured", true);
+		shader->loadUniform("material.multitextured", material.isMultitextured());
 		shader->loadUniform("material.hasSpecularMap", false);
 	}
 
 	void TerrainRenderer::prepareRender(const Terrain& model) const {
-		renderer.prepareRender(&model.get_const());
+		renderer.prepareRender(model.getptr_const());
 		getTransformationMatrix(modelMatrix, {model.getX(), model.getHeight(), model.getZ()});
 		shader->loadUniform("transform", modelMatrix);
 		shader->loadUniform("clipPlane", 0, -1, 0, model.getHeight());
@@ -52,7 +52,7 @@ namespace Voyage {
 		shader->loadUniform("lightPos", light.getDirection());
 		for(const Terrain& terrain : model) {
 			prepareRender(terrain);
-			renderer.drawTriangleCall(&terrain.get_const());
+			renderer.drawTriangleCall(terrain.getptr_const());
 		}
 		shader->stop();
 	}

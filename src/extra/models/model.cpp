@@ -1,8 +1,7 @@
 #include "Voyage/model.hpp"
 #include "Voyage/maths.hpp"
 #include "Voyage/material.hpp"
-#include "Voyage/maths.hpp"
-#include "assimp/material.h"
+#include "Voyage/raw_model.hpp"
 
 namespace Voyage {
 
@@ -28,22 +27,37 @@ namespace Voyage {
 		aiReleaseImport(scene);
 	}
 
-	Model::Model(const Model& model) {}
+	Model::Model(const Model& model) noexcept: models(model.models), position(model.position), rotation(model.rotation), scale(model.scale), filepath(model.filepath), material(model.material) {}
 
-	Model::Model(Model&& model) noexcept {}
+	Model::Model(Model&& model) noexcept: models(std::move(model.models)), position(model.position), rotation(model.rotation), filepath(std::move(model.filepath)), material(std::move(model.material)) {}
 
-	Model::~Model() { dispose(); }
+	Model::~Model() noexcept { dispose(); }
 
-	const std::vector<RawModel>& Model::getModels() const { return models; }
+	const std::vector<std::shared_ptr<RawModel>>& Model::getModels() const { return models; }
 
-			const Material& Model::getMaterial() const { return material; }
+	const Material& Model::getMaterial() const { return material; }
 
 	void Model::getTransformation(glm::mat4& dest) const { getTransformationMatrix(dest, position, rotation, scale); }
 
-	const Model& Model::operator=(Model&& model) {
-		models.clear();
-		models = std::move(model.models);
-		model.models.clear();
+	Model& Model::operator=(const Model& other) {
+		if(this == &other) return *this;
+		dispose();
+		models = other.models;
+		position = other.position;
+		rotation = other.rotation;
+		filepath = other.filepath;
+		material = other.material;
+		return *this;
+	}
+
+	Model& Model::operator=(Model&& other) {
+		if(this == &other) return *this;
+		dispose();
+		models = std::move(other.models);
+		position = std::move(other.position);
+		rotation = std::move(other.rotation);
+		filepath = std::move(other.filepath);
+		material = std::move(other.material);
 		return *this;
 	}
 
@@ -66,11 +80,11 @@ namespace Voyage {
 	void Model::processMesh(const aiMesh* mesh, Loader& loader) {
 		size_t num_indices = mesh->mNumFaces * 3;	// The number of elements in the indices array
 		size_t num_vertices = mesh->mNumVertices;	// One vertex represents 3 (X, Y, Z) elements in the vertices array
-		unsigned int *indices = new unsigned int[num_indices];
+		uint32_t *indices = new uint32_t[num_indices];
 		float *position = new float[num_vertices * 3], *texture_coords = new float[num_vertices * 2], *normals = new float[num_vertices * 3], *tangents = new float[num_vertices * 3], *bitangents = new float[num_vertices * 3];
 		aiVector3D curr_vert, curr_norm, curr_tang, curr_bitang;
-		for(unsigned int i = 0; i < num_vertices; i++) {
-			unsigned int x = i * 3, y = x + 1, z = y + 1;
+		for(uint32_t i = 0; i < num_vertices; i++) {
+			uint32_t x = i * 3, y = x + 1, z = y + 1;
 			// VERTICES
 			curr_vert = mesh->mVertices[i];
 			position[x] = curr_vert.x;
@@ -114,13 +128,13 @@ namespace Voyage {
 		}
 
 		// INDICES
-		for(unsigned int i = 0; i < mesh->mNumFaces; i++) {
+		for(uint32_t i = 0; i < mesh->mNumFaces; i++) {
 			const aiFace& face = mesh->mFaces[i];
 			indices[(i * 3)	   ] = face.mIndices[0];
 			indices[(i * 3) + 1] = face.mIndices[1];
 			indices[(i * 3) + 2] = face.mIndices[2];
 		}
-		models.push_back(*loader.loadToVAO(position, 3, num_vertices, num_indices, indices, texture_coords, normals, tangents, bitangents));
+		models.push_back(std::move(loader.loadToVAO(position, 3, num_vertices, num_indices, indices, texture_coords, normals, tangents, bitangents)));
 
 		delete[] position;
 		delete[] indices;
@@ -135,9 +149,13 @@ namespace Voyage {
 		processMaterials(scene, "");
 
 		//Process models, if any...
-		for(unsigned int i = 0; i < scene->mNumMeshes; i++) processMesh(scene->mMeshes[i], loader);
+		models.reserve(scene->mNumMeshes);
+		for(uint32_t i = 0; i < scene->mNumMeshes; i++) processMesh(scene->mMeshes[i], loader);
 	}
 
-	void Model::dispose() { for(RawModel& model : models) model.dispose(); }
+	void Model::dispose() {
+		for(auto& model : models) model->dispose();
+		models.clear();
+	}
 
 }

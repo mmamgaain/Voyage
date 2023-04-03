@@ -8,7 +8,7 @@ namespace Voyage {
 
 	Cards::Cards(Loader& loader, const char* const texture, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): texture(loader.loadTexture(texture)), textureID(0), position(position), isHUD(isHUD), rotation(rotation), scale(scale) { if(!model) model = loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2); }
 
-	Cards::Cards(Loader& loader, const unsigned int textureID, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): texture(nullptr), textureID(textureID), position(position), isHUD(isHUD), rotation(rotation), scale(scale) { if(!model) model = loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2); }
+	Cards::Cards(Loader& loader, const uint32_t textureID, const glm::vec3& position, const bool isHUD, const glm::vec3& rotation, const glm::vec3& scale): texture(nullptr), textureID(textureID), position(position), isHUD(isHUD), rotation(rotation), scale(scale) { if(!model) model = loader.loadToVAO({-1, 1, -1, -1, 1, 1, 1, -1}, 2); }
 
 	Cards::~Cards() { if(texture) texture->dispose(); }
 
@@ -18,7 +18,7 @@ namespace Voyage {
 
 	const bool Cards::hasTexture() const { return texture != nullptr; }
 
-	const unsigned int& Cards::getTextureID() const { return texture ? texture->getID() : textureID; }
+	const uint32_t& Cards::getTextureID() const { return texture ? texture->getID() : textureID; }
 
 	const bool Cards::hasTextureID() const { return textureID; }
 

@@ -36,11 +36,11 @@ namespace Voyage {
 
 			const float& getVolume() const;
 
-			void play(unsigned int* const buffer = nullptr);
+			void play(uint32_t* const buffer = nullptr);
 
 			void togglePlay();
 
-			void bindSound(const unsigned int& buffer);
+			void bindSound(const uint32_t& buffer);
 
 			void pause();
 
@@ -54,7 +54,7 @@ namespace Voyage {
 
 			void dispose();
 		private:
-			unsigned int id;
+			uint32_t id;
 			glm::vec3 position, velocity;
 			float rolloffFactor, referenceDist, maxDistance, volume;
 			bool playing, looping;

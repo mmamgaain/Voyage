@@ -1,4 +1,4 @@
-// All the Voyage header files in this single convenience header file
+// All the individual header files in this convenience header file
 
 #include "Voyage/imgui_interface.hpp"
 #include "Voyage/loader.hpp"

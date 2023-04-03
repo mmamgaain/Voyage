@@ -5,11 +5,11 @@ namespace Voyage {
 
 	class Camera1P {
 		public:
-			Camera1P(const glm::vec3& position = {}, const float& pitch = 0.0, const float& yaw = 0.0, const float& roll = 0.0);
+			Camera1P(const glm::vec3& position = {}, const float& pitch = 0.0F, const float& yaw = 0.0F, const float& roll = 0.0F) noexcept;
 
-			Camera1P(const Camera1P& camera);
+			Camera1P(const Camera1P& camera) noexcept;
 
-			Camera1P(Camera1P&& camera);
+			Camera1P& operator=(const Camera1P& other) noexcept;
 
 			~Camera1P() noexcept = default;
 

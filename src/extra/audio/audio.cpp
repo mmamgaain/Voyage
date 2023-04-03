@@ -11,7 +11,7 @@ namespace Voyage {
 
 	ALCdevice* AudioMaster::device;
 	ALCcontext* AudioMaster::context;
-	std::vector<unsigned int> AudioMaster::buffers;
+	std::vector<uint32_t> AudioMaster::buffers;
 	glm::vec3 AudioMaster::listenerPosition, AudioMaster::listenerVelocity;
 
 	void AudioMaster::init() {
@@ -24,7 +24,7 @@ namespace Voyage {
 		alcMakeContextCurrent(context);
 		bool g_bEAX = alIsExtensionPresent("EAX2.0");
 
-		unsigned int err = alGetError();
+		uint32_t err = alGetError();
 		if(err != AL_NO_ERROR) fprintf(stderr, "OpenAL Error: %s\n", alGetString(err));
 	}
 
@@ -32,14 +32,14 @@ namespace Voyage {
 
 	void AudioMaster::setDistanceModel(int& model) { alDistanceModel(model); }
 
-	unsigned int AudioMaster::loadSound(const char* const filename) {
+	uint32_t AudioMaster::loadSound(const char* const filename) {
 		std::string_view file_ext(filename + strlen(filename) - 3, 2);
-		unsigned int buffer;
+		uint32_t buffer;
 		if(file_ext == "mp") buffer = loadSoundBufferMP3(filename);
 		else buffer = loadSoundBuffer(filename);
-		unsigned int source;
+		uint32_t source;
 		alGenSources(1, &source);
-		alSourcei(source, AL_BUFFER, (unsigned int)buffer);
+		alSourcei(source, AL_BUFFER, (uint32_t)buffer);
 		assert(alGetError() == AL_NO_ERROR && "Failed to setup sound source");
 		return buffer;
 	}
@@ -51,9 +51,9 @@ namespace Voyage {
 		alcCloseDevice(device);
 	}
 
-	unsigned int AudioMaster::loadSoundBuffer(const char* filename) {
+	uint32_t AudioMaster::loadSoundBuffer(const char* filename) {
 		int err, format;
-		unsigned int buffer = 0;
+		uint32_t buffer = 0;
 		SNDFILE *sndfile;
 		SF_INFO sfinfo;
 		short *membuf;
@@ -114,8 +114,8 @@ namespace Voyage {
 		return buffer;
 	}
 
-	unsigned int AudioMaster::loadSoundBufferMP3(const char* filename) {
-		unsigned int buffer;
+	uint32_t AudioMaster::loadSoundBufferMP3(const char* filename) {
+		uint32_t buffer;
 		mp3dec_t mp3d;
 		mp3dec_init(&mp3d);
 		mp3dec_file_info_t info;

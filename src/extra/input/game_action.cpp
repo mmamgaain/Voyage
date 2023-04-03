@@ -13,24 +13,22 @@ namespace Voyage {
 	GameAction::GameAction(const GameAction& game_action): amount(game_action.amount), key(game_action.key), name(game_action.name), behaviour(game_action.behaviour), state(game_action.state) {}
 
 	// Move constructor
-	GameAction::GameAction(GameAction&& game_action): amount(std::move(game_action.amount)), key(std::move(game_action.key)), behaviour(std::move(game_action.behaviour)), state(std::move(game_action.state)) {}
+	GameAction::GameAction(GameAction&& game_action): amount(std::move(game_action.amount)), key(std::move(game_action.key)), name(std::move(game_action.name)), behaviour(std::move(game_action.behaviour)), state(std::move(game_action.state)) {}
 
 	GameAction::~GameAction() noexcept { keys.erase(key); }
 
 	GameAction* GameAction::add_key_bind(const int& key_code, const BEHAVIOURS behaviour, const char* const name) {
 		GameAction* action = new GameAction(key_code, behaviour, name);
 		if(keys.size() == 0) keys.reserve(5);
-		keys.emplace(key_code, action);
+		keys.emplace(key_code, std::move(action));
 		return action;
 	}
 
 	GameAction* GameAction::add_mouse_bind(const int& mouse_code, const BEHAVIOURS behaviour, const char* const name) {
 		if(mouse_code < 0 || mouse_code > 8) { fprintf(stderr, "The mouse code provided %d belonging to key %s is incorrect. Please select from the approved mouse codes.\n", mouse_code, glfwGetKeyName(mouse_code, 0)); return nullptr; }
-		else {
-			GameAction* mouse = new GameAction(mouse_code, behaviour, name);
-			mouses[mouse_code] = mouse;
-			return mouse;
-		}
+		GameAction* mouse = new GameAction(mouse_code, behaviour, name);
+		mouses[mouse_code] = mouse;
+		return mouse;
 	}
 
 	float GameAction::getAmount() {
@@ -48,9 +46,9 @@ namespace Voyage {
 	void GameAction::reset() { state = GAME_INPUT_STATE_RELEASED; amount = 0; }
 
 	void GameAction::dispose_input_controls() {
-		for(unsigned int i = 0; i < keys.size(); i++) if(keys[i]) delete keys[i];
+		for(uint32_t i = 0; i < keys.size(); i++) if(keys[i]) delete keys[i];
 		keys.clear();
-		for(unsigned int i = 0; i < 9; i++) if(mouses[i]) delete mouses[i];
+		for(uint32_t i = 0; i < 9; i++) if(mouses[i]) delete mouses[i];
 	}
 
 	void GameAction::press(const int& amount) {
@@ -72,7 +70,7 @@ namespace Voyage {
 		}
 	}
 
-	void GameAction::mouse_position_helper(const unsigned int code_neg, const unsigned int code_pos, const double amount) {
+	void GameAction::mouse_position_helper(const uint32_t code_neg, const uint32_t code_pos, const double amount) {
 		if(amount != 0) {
 			GameAction* action = mouses[amount < 0 ? code_neg : code_pos];
 			if(action != NULL) action->tap(std::abs(amount));

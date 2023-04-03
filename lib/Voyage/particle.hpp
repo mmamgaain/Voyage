@@ -52,14 +52,27 @@ namespace Voyage {
 			glm::vec3 position, velocity, scale;
 			float gravityEffect, lifeLength, rotation, elapsedTime;
 			mutable glm::vec2 texOffsetCurr, texOffsetNext;
-			mutable unsigned int numTexRows, numTexCols;
+			mutable uint32_t numTexRows, numTexCols;
 			mutable float blend;
+			bool is_alive;
 
-			ParticleInstanced(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const unsigned int& numTexRows = 1, const unsigned int& numTexCols = 1);
+			ParticleInstanced() noexcept;
+
+			ParticleInstanced(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const uint32_t& numTexRows = 1, const uint32_t& numTexCols = 1);
+
+			ParticleInstanced(const ParticleInstanced& particle) noexcept;
+
+			// ParticleInstanced(ParticleInstanced&& particle) noexcept;
+
+			ParticleInstanced& operator=(const ParticleInstanced& other) noexcept;
+
+			// ParticleInstanced& operator=(ParticleInstanced&& other) noexcept;
 
 			~ParticleInstanced() noexcept = default;
 
-			const bool update();
+			void set(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const uint32_t& numTexRows = 1, const uint32_t& numTexCols = 1);
+
+			bool update();
 		private:
 			void updateTexCoords();
 

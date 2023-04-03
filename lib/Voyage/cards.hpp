@@ -9,7 +9,7 @@ namespace Voyage {
 		public:
 			Cards(Loader& loader, const char* const texture, const glm::vec3& position, const bool isHUD = true, const glm::vec3& rotation = {}, const glm::vec3& scale = {1.0, 1.0, 1.0});
 
-			Cards(Loader& loader, const unsigned int textureID, const glm::vec3& position, const bool isHUD = false, const glm::vec3& rotation = {}, const glm::vec3& scale = {1.0, 1.0, 1.0});
+			Cards(Loader& loader, const uint32_t textureID, const glm::vec3& position, const bool isHUD = false, const glm::vec3& rotation = {}, const glm::vec3& scale = {1.0, 1.0, 1.0});
 
 			~Cards();
 
@@ -19,7 +19,7 @@ namespace Voyage {
 
 			const bool hasTexture() const;
 
-			const unsigned int& getTextureID() const;
+			const uint32_t& getTextureID() const;
 
 			const bool hasTextureID() const;
 
@@ -33,7 +33,7 @@ namespace Voyage {
 		private:
 			static std::shared_ptr<RawModel> model;
 			std::shared_ptr<Texture> texture;
-			unsigned int textureID;
+			uint32_t textureID;
 			glm::vec3 position, rotation, scale;
 			bool isHUD;
 	};

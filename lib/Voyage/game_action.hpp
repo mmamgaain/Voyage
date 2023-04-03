@@ -1,6 +1,5 @@
 #pragma once
 #include <voyage.hpp>
-#include "Voyage/core.hpp"
 
 /* #define DEFAULT_INITIAL_DARRAY_COLLECTION_SIZE 5
 #define DEFAULT_MINIMUM_STRING_REALLOCATION_SIZE 50
@@ -18,9 +17,6 @@
 #define MM_LEFT 7
 #define MM_RIGHT 8
 
-#define SIZE_OF_ARRAY_IN_ELEMENTS(x) (sizeof(x) / sizeof(x[0]))
-#define SIZE_OF_ARRAY_IN_BYTES(x, length) (sizeof(x) / length)
-
 namespace Voyage {
 
 	typedef enum { GAME_INPUT_BEHAVIOUR_NORMAL, GAME_INPUT_BEHAVIOUR_DETECT_INITIAL_PRESS_ONLY } BEHAVIOURS;
@@ -31,6 +27,10 @@ namespace Voyage {
 			static GameAction* add_key_bind(const int& key_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const char* const name = "Unknown");
 
 			static GameAction* add_mouse_bind(const int& mouse_code, const BEHAVIOURS behaviour = GAME_INPUT_BEHAVIOUR_NORMAL, const char* const name = "Unknown");
+
+			GameAction& operator=(const GameAction& lhs) = delete;
+
+			GameAction& operator=(GameAction&& rhs) = delete;
 
 			~GameAction() noexcept;
 
@@ -56,26 +56,26 @@ namespace Voyage {
 
 			friend std::ostream& operator<<(std::ostream& stream, const GameAction& action);
 		private:
-			unsigned int amount, key;
+			uint32_t amount, key;
 			std::string name;
 			BEHAVIOURS behaviour;
 			STATES state;
 			static std::unordered_map<int, GameAction*> keys;
 			static GameAction* mouses[9];
 
-			GameAction(GameAction&& game_action);
+			GameAction(const int, const BEHAVIOURS, const std::string&);
 
-			GameAction(const int key_code, const BEHAVIOURS behaviour, const std::string& name);
+			GameAction(const GameAction&);
 
-			GameAction(const GameAction& game_action);
+			GameAction(GameAction&&);
 
-			void press(const int& amount = 1);
+			void press(const int& = 1);
 
-			void tap(const int& amount = 1);
+			void tap(const int& = 1);
 
 			void release();
 
-			static void mouse_position_helper(const unsigned int, const unsigned int, const double);
+			static void mouse_position_helper(const uint32_t, const uint32_t, const double);
 	};
 
 	std::ostream& operator<<(std::ostream& stream, const GameAction& action);

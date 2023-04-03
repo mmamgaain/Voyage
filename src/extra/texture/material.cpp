@@ -5,9 +5,9 @@ namespace Voyage {
 
 	Material::Material(const glm::vec3& diffuse, const glm::vec3& ambient, const glm::vec3& specular, std::shared_ptr<Texture> texture): diffuse(diffuse), ambient(ambient), specular(specular), texture(texture), normalMap(0), specularMap(0), shineDamper(1), specularReflectivity(0), transparency(0), enviroRefractivity(0.5), fresnelPower(2), isDoubleSided(false), hasFresnel(true), rows({}) {}
 
-	Material::Material(const Material& material): diffuse(material.diffuse), ambient(material.ambient), specular(material.specular), texture(material.texture), normalMap(material.normalMap), specularMap(material.specularMap), shineDamper(1), specularReflectivity(0), transparency(0), enviroRefractivity(0.5), fresnelPower(2), isDoubleSided(false), hasFresnel(true), rows({}) {}
+	Material::Material(const Material& material): diffuse(material.diffuse), ambient(material.ambient), specular(material.specular), texture(material.texture), normalMap(material.normalMap), specularMap(material.specularMap), shineDamper(material.shineDamper), specularReflectivity(material.specularReflectivity), transparency(material.transparency), enviroRefractivity(material.enviroRefractivity), fresnelPower(material.fresnelPower), isDoubleSided(material.isDoubleSided), hasFresnel(material.hasFresnel), rows(material.rows) {}
 
-	Material::Material(Material&& material): diffuse(std::move(material.diffuse)), ambient(std::move(material.ambient)), specular(std::move(material.specular)), texture(std::move(material.texture)), normalMap(std::move(material.normalMap)), specularMap(std::move(material.specularMap)), shineDamper(1), specularReflectivity(0), transparency(0), enviroRefractivity(0.5), fresnelPower(2), isDoubleSided(false), hasFresnel(true), rows({}) {}
+	Material::Material(Material&& material): diffuse(material.diffuse), ambient(material.ambient), specular(material.specular), texture(std::move(material.texture)), normalMap(std::move(material.normalMap)), specularMap(std::move(material.specularMap)), shineDamper(material.shineDamper), specularReflectivity(material.specularReflectivity), transparency(material.transparency), enviroRefractivity(material.enviroRefractivity), fresnelPower(material.fresnelPower), isDoubleSided(material.isDoubleSided), hasFresnel(material.hasFresnel), rows(material.rows) {}
 
 	const glm::vec3& Material::getDiffuseColor() const { return diffuse; }
 
@@ -49,38 +49,29 @@ namespace Voyage {
 
 	const bool Material::hasSpecularMap() const { return specularMap != nullptr && specularMap->getID(); }
 
-	const Material& Material::operator=(const Material& material) {
-		if(this != &material) {
-			this->dispose();
-
-			diffuse = material.diffuse;
-			ambient = material.ambient;
-			specular = material.specular;
-			texture = material.texture;
-			normalMap = material.normalMap;
-			specularMap = material.specularMap;
-			rows = material.rows;
+	const Material& Material::operator=(const Material& other) {
+		if(this != &other) {
+			diffuse = other.diffuse;
+			ambient = other.ambient;
+			specular = other.specular;
+			texture = other.texture;
+			normalMap = other.normalMap;
+			specularMap = other.specularMap;
+			rows = other.rows;
 		}
 		return *this;
 	}
 
-	const Material& Material::operator=(Material&& material) {
-		if(this != &material) {
-			this->dispose();
-
-			diffuse = std::move(material.diffuse);
-			ambient = std::move(material.ambient);
-			specular = std::move(material.specular);
-			texture = std::move(material.texture);
-			normalMap = std::move(material.normalMap);
-			specularMap = std::move(material.specularMap);
-			rows = material.rows;
-
-			// material.dispose();
+	const Material& Material::operator=(Material&& other) {
+		if(this != &other) {
+			diffuse = std::move(other.diffuse);
+			ambient = std::move(other.ambient);
+			specular = std::move(other.specular);
+			texture = std::move(other.texture);
+			normalMap = std::move(other.normalMap);
+			specularMap = std::move(other.specularMap);
+			rows = other.rows;
 		}
 		return *this;
 	}
-
-	void Material::dispose() { if(texture) texture->dispose(); if(normalMap) normalMap->dispose(); if(specularMap) specularMap->dispose(); }
-
 }

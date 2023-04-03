@@ -1,12 +1,13 @@
 #include "Voyage/fbo.hpp"
 #include "Voyage/core.hpp"
+#include <cstdint>
 
 namespace Voyage {
 
 	int FrameBuffer::MAX_TARGETS = 0;
 	int FrameBuffer::MAX_SAMPLES = 0;
 
-	FrameBuffer::FrameBuffer(const unsigned int& width, const unsigned int& height, const COLOR_ATTACHMENT_TYPE& color_at, const DEPTH_ATTACHMENT_TYPE& depth_at, const unsigned int& num_samples, const unsigned int& num_attachments): id(0), width(width), height(height), samples(std::max<unsigned int>(num_samples, 1)), attachments(std::max<unsigned int>(num_attachments, 1)), depthTexture(0), depthBuffer(0), colorTexture(nullptr), colorBuffer(nullptr), dirty(nullptr), reserve(nullptr) {
+	FrameBuffer::FrameBuffer(const uint32_t& width, const uint32_t& height, const COLOR_ATTACHMENT_TYPE& color_at, const DEPTH_ATTACHMENT_TYPE& depth_at, const uint32_t& num_samples, const uint32_t& num_attachments): id(0), width(width), height(height), samples(std::max<uint32_t>(num_samples, 1)), attachments(std::max<uint32_t>(num_attachments, 1)), depthTexture(0), depthBuffer(0), colorTexture(nullptr), colorBuffer(nullptr), dirty(nullptr), reserve(nullptr) {
 		init();
 		createFrameBuffer();
 		if(color_at == COLOR_ATTACHMENT_NONE) glDrawBuffer(GL_NONE);
@@ -31,6 +32,62 @@ namespace Voyage {
 			reserve = nullptr;
 		}
 		unbindFrameBuffer();
+	}
+
+	FrameBuffer::FrameBuffer(const FrameBuffer& fbo) noexcept: id(fbo.id), width(fbo.width), height(fbo.height), samples(fbo.samples), attachments(fbo.attachments), depthTexture(fbo.depthTexture), depthBuffer(fbo.depthBuffer), colorTexture(fbo.colorTexture), colorBuffer(fbo.colorBuffer), dirty(fbo.dirty), reserve(fbo.reserve) {}
+
+	FrameBuffer::FrameBuffer(FrameBuffer&& fbo) noexcept: id(fbo.id), width(fbo.width), height(fbo.height), samples(fbo.samples), attachments(fbo.attachments), depthTexture(fbo.depthTexture), depthBuffer(fbo.depthBuffer), colorTexture(fbo.colorTexture), colorBuffer(fbo.colorBuffer), dirty(fbo.dirty), reserve(std::move(fbo.reserve)) {
+		fbo.id = 0;
+		fbo.depthTexture = 0;
+		fbo.depthBuffer = 0;
+		fbo.colorTexture = nullptr;
+		fbo.colorBuffer = nullptr;
+	}
+
+	FrameBuffer& FrameBuffer::operator=(const FrameBuffer& other) noexcept {
+		if(this == &other) return *this;
+		id = other.id;
+		width = other.width;
+		height = other.height;
+		samples = other.samples;
+		attachments = other.attachments;
+		depthTexture = other.depthTexture;
+		depthBuffer = other.depthBuffer;
+		colorTexture = new uint32_t[other.attachments];
+		colorBuffer = new uint32_t[other.attachments];
+		memcpy(colorTexture, other.colorTexture, attachments * sizeof(uint32_t));
+		memcpy(colorBuffer, other.colorBuffer, attachments * sizeof(uint32_t));
+		/* for(uint32_t i = 0; i < attachments; ++i) {
+		   colorTexture[i] = other.colorTexture[i];
+		   colorBuffer[i] = other.colorBuffer[i];
+		   other.colorTexture[i] = 0;
+		   other.colorBuffer[i] = 0;
+		   } */
+		dirty = other.dirty;
+		reserve = other.reserve;
+		return *this;
+	}
+
+	FrameBuffer& FrameBuffer::operator=(FrameBuffer&& other) noexcept {
+		if(this == &other) return *this;
+		id = other.id;
+		width = other.width;
+		height = other.height;
+		samples = other.samples;
+		attachments = other.attachments;
+		depthTexture = other.depthTexture;
+		depthBuffer = other.depthBuffer;
+		colorTexture = other.colorTexture;
+		colorBuffer = other.colorBuffer;
+		dirty = other.dirty;
+		reserve = std::move(other.reserve);
+
+		other.id = 0;
+		other.depthTexture = 0;
+		other.depthBuffer = 0;
+		other.colorTexture = nullptr;
+		other.colorBuffer = nullptr;
+		return *this;
 	}
 
 	FrameBuffer::~FrameBuffer() { dispose(); }
@@ -59,47 +116,6 @@ namespace Voyage {
 		if(id) glDeleteFramebuffers(1, &id);
 	}
 
-	FrameBuffer::FrameBuffer(const FrameBuffer& fbo) {
-		if(this == &fbo) return;
-		dispose();
-
-		id = fbo.id;
-		width = fbo.width;
-		height = fbo.height;
-		samples = fbo.samples;
-		attachments = fbo.attachments;
-		depthTexture = fbo.depthTexture;
-		depthBuffer = fbo.depthBuffer;
-		colorTexture = fbo.colorTexture;
-		colorBuffer = fbo.colorBuffer;
-		dirty = fbo.dirty;
-		reserve = fbo.reserve;
-	}
-
-	FrameBuffer::FrameBuffer(FrameBuffer&& fbo) {
-		dispose();
-
-		id = fbo.id;
-		width = fbo.width;
-		height = fbo.height;
-		samples = fbo.samples;
-		attachments = fbo.attachments;
-		depthTexture = fbo.depthTexture;
-		depthBuffer = fbo.depthBuffer;
-		colorTexture = fbo.colorTexture;
-		colorBuffer = fbo.colorBuffer;
-		dirty = fbo.dirty;
-		reserve = fbo.reserve;
-
-		fbo.id = 0;
-		fbo.depthBuffer = 0;
-		fbo.depthTexture = 0;
-		fbo.colorBuffer = nullptr;
-		fbo.colorTexture = nullptr;
-		fbo.dirty = nullptr;
-		fbo.reserve = nullptr;
-	}
-
 	constexpr const bool FrameBuffer::isMultisampled() const { return samples != 1; }
 
 	void FrameBuffer::resolveToFBO(FrameBuffer* fbo) const {
@@ -107,7 +123,7 @@ namespace Voyage {
 			if(!fbo) fbo = reserve;
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo->id);
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, id);
-			for(unsigned int i = 0; i < attachments; i++) {
+			for(uint32_t i = 0; i < attachments; i++) {
 				glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
 				glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
 				glBlitFramebuffer(0, 0, width, height, 0, 0, fbo->width, fbo->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_LINEAR);
@@ -116,7 +132,7 @@ namespace Voyage {
 		}
 	}
 
-	void FrameBuffer::resolveToScreen(const unsigned int& attachment) const {
+	void FrameBuffer::resolveToScreen(const uint32_t& attachment) const {
 		if(isMultisampled()) {
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, id);
@@ -135,7 +151,7 @@ namespace Voyage {
 
 	void FrameBuffer::unbindFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
-	const unsigned int FrameBuffer::getColorTexture(const unsigned int& target) {
+	const uint32_t FrameBuffer::getColorTexture(const uint32_t& target) {
 		if(target < attachments) {
 			if(isMultisampled()) return resolveToTexture(target);
 			else if(colorTexture) return colorTexture[target];
@@ -143,7 +159,7 @@ namespace Voyage {
 		return 0;
 	}
 
-	const unsigned int FrameBuffer::getDepthTexture() {
+	const uint32_t FrameBuffer::getDepthTexture() {
 		if(depthTexture) return depthTexture;
 		else if(isMultisampled()) { if(isAllDirty()) resolveToTexture(); return reserve->depthTexture; }
 		return 0;
@@ -152,20 +168,20 @@ namespace Voyage {
 	void FrameBuffer::createFrameBuffer() {
 		glGenFramebuffers(1, &id);
 		glBindFramebuffer(GL_FRAMEBUFFER, id);
-		for(unsigned int i = 0; i < attachments; i++) glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
+		for(uint32_t i = 0; i < attachments; i++) glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
 	}
 
 	void FrameBuffer::init() {
 		if(!MAX_TARGETS) glGetIntegerv(GL_MAX_DRAW_BUFFERS, &MAX_TARGETS);
 		if(!MAX_SAMPLES) glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &MAX_SAMPLES);
-		attachments = std::min<unsigned int>(attachments, MAX_TARGETS);
-		samples = std::min<unsigned int>(samples, MAX_SAMPLES);
+		attachments = std::min<uint32_t>(attachments, MAX_TARGETS);
+		samples = std::min<uint32_t>(samples, MAX_SAMPLES);
 	}
 
 	void FrameBuffer::createColorTextureAttachments() {
-		colorTexture = new unsigned int[attachments];
+		colorTexture = new uint32_t[attachments];
 		glGenTextures(attachments, colorTexture);
-		for(unsigned int i = 0; i < attachments; i++) {
+		for(uint32_t i = 0; i < attachments; i++) {
 			glBindTexture(GL_TEXTURE_2D, colorTexture[i]);
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -176,9 +192,9 @@ namespace Voyage {
 	}
 
 	void FrameBuffer::createColorBufferAttachments() {
-		colorBuffer = new unsigned int[attachments];
+		colorBuffer = new uint32_t[attachments];
 		glGenRenderbuffers(attachments, colorBuffer);
-		for(unsigned int i = 0; i < attachments; i++) {
+		for(uint32_t i = 0; i < attachments; i++) {
 			glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer[i]);
 			if(isMultisampled()) glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_RGBA16F, width, height);
 			else glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA16F, width, height);
@@ -204,7 +220,7 @@ namespace Voyage {
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
 	}
 
-	const unsigned int& FrameBuffer::resolveToTexture(const unsigned int& attachment) {
+	const uint32_t& FrameBuffer::resolveToTexture(const uint32_t& attachment) {
 		if(this->attachments >= attachment && dirty[attachment]) {
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, reserve->id);
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, id);
@@ -216,11 +232,11 @@ namespace Voyage {
 		return reserve->colorTexture[attachment];
 	}
 
-	const unsigned int* FrameBuffer::resolveToTextures() {
+	const uint32_t* FrameBuffer::resolveToTextures() {
 		if(isDirty()) {
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, reserve->id);
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, id);
-			for(unsigned int i = 0; i < this->attachments; i++) {
+			for(uint32_t i = 0; i < this->attachments; i++) {
 				if(dirty[i]) {
 					glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
 					glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
@@ -235,11 +251,11 @@ namespace Voyage {
 
 	/* True - If atleast one is dirty.
 	 * False - If all are not dirty. */
-	bool FrameBuffer::isDirty() const { for(unsigned int i = 0; i < attachments; i++) if(dirty[i]) return true; return false; }
+	bool FrameBuffer::isDirty() const { for(uint32_t i = 0; i < attachments; i++) if(dirty[i]) return true; return false; }
 
 	/* True - If all are dirty.
 	 * False - If atleast one is found not dirty. */
-	bool FrameBuffer::isAllDirty() const { for(unsigned int i = 0; i < attachments; i++) { if(!dirty[i]) { return false; } } return true; }
+	bool FrameBuffer::isAllDirty() const { for(uint32_t i = 0; i < attachments; i++) { if(!dirty[i]) { return false; } } return true; }
 
 	inline void FrameBuffer::setDirty(const bool& flag) const { std::fill(dirty, dirty + attachments, flag); }
 

@@ -103,11 +103,11 @@ namespace Voyage {
 
 	const float& Source::getVolume() const { return volume; }
 
-	void Source::play(unsigned int* const buffer) { if(!playing) { if(buffer) bindSound(*buffer); alSourcePlay(id); playing = true; } }
+	void Source::play(uint32_t* const buffer) { if(!playing) { if(buffer) bindSound(*buffer); alSourcePlay(id); playing = true; } }
 
 	void Source::togglePlay() { if(playing) pause(); else play(); }
 
-	void Source::bindSound(const unsigned int& buffer) { alSourcei(id, AL_BUFFER, buffer); }
+	void Source::bindSound(const uint32_t& buffer) { alSourcei(id, AL_BUFFER, buffer); }
 
 	void Source::pause() { playing = false; alSourcePause(id); }
 

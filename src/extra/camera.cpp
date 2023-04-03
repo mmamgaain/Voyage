@@ -2,11 +2,18 @@
 
 namespace Voyage {
 
-	Camera1P::Camera1P(const glm::vec3& position, const float& pitch, const float& yaw, const float& roll): position(position), pitch(glm::radians(pitch)), yaw(glm::radians(yaw)), roll(glm::radians(roll)) {}
+	Camera1P::Camera1P(const glm::vec3& position, const float& pitch, const float& yaw, const float& roll) noexcept: position(position), pitch(glm::radians(pitch)), yaw(glm::radians(yaw)), roll(glm::radians(roll)) {}
 
-	Camera1P::Camera1P(const Camera1P& camera): position(camera.position), pitch(camera.pitch), yaw(camera.yaw), roll(camera.roll) {}
+	Camera1P::Camera1P(const Camera1P& camera) noexcept: position(camera.position), pitch(camera.pitch), yaw(camera.yaw), roll(camera.roll) {}
 
-	Camera1P::Camera1P(Camera1P&& camera): position(std::move(camera.position)), pitch(std::move(camera.pitch)), yaw(std::move(camera.yaw)), roll(std::move(camera.roll)) {}
+	Camera1P& Camera1P::operator=(const Camera1P& other) noexcept {
+		if(this == &other) return *this;
+		position = other.position;
+		pitch = other.pitch;
+		yaw = other.yaw;
+		roll = other.roll;
+		return *this;
+	}
 
 	Camera1P& Camera1P::changePosition(const glm::vec3& pos) { position += pos; return *this; }
 

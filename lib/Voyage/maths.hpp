@@ -32,9 +32,9 @@ namespace Voyage {
 
 	bool isEven(const int& val);
 
-	float roundToPlaces(const float& value, const unsigned int& places);
+	float roundToPlaces(const float& value, const uint32_t& places);
 
-	int roundNearest(const float& value, const unsigned int& nearest);
+	int roundNearest(const float& value, const uint32_t& nearest);
 
 	bool inRange(const float& value, const float& min, const float& max);
 

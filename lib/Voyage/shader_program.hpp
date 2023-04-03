@@ -4,7 +4,7 @@
 namespace Voyage {
 	class ShaderProgram {
 		public:
-			ShaderProgram(const char* const vertex_file, const char* const fragment_file, unsigned int num_textures = DEFAULT_NUM_TEXTURES) noexcept;
+			ShaderProgram(const char* const vertex_file, const char* const fragment_file, uint32_t num_textures = DEFAULT_NUM_TEXTURES) noexcept;
 
 			ShaderProgram(const ShaderProgram& shader);
 
@@ -26,7 +26,7 @@ namespace Voyage {
 
 			void loadUniform(const char* const name, const int& value);
 
-			void loadUniform(const char* const name, const unsigned int& value);
+			void loadUniform(const char* const name, const uint32_t& value);
 
 			void loadUniform(const char* const name, const bool& value);
 
@@ -46,15 +46,15 @@ namespace Voyage {
 
 			void loadUniform(const char* const name, const glm::mat4& value, const bool& to_be_transposed = false);
 
-			bool remapTextureSampleName(const unsigned int& location, const char* const name) const;
+			bool remapTextureSampleName(const uint32_t& location, const char* const name) const;
 
 			void dispose();
 		private:
-			unsigned int id, num_textures;
+			uint32_t id, num_textures;
 			mutable std::unordered_map<const char*, int> uniformLocations;
-			static unsigned int DEFAULT_NUM_TEXTURES, MAX_TEXTURE_UNITS;
+			static uint32_t DEFAULT_NUM_TEXTURES, MAX_TEXTURE_UNITS;
 
-			static unsigned int loadShader(const char* const source, unsigned int type);
+			static uint32_t loadShader(const char* const source, uint32_t type);
 
 			void getAllTextureLocations();
 		protected:

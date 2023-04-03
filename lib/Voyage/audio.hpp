@@ -23,18 +23,18 @@ namespace Voyage {
 
 			static void setDistanceModel(int& model);
 
-			static unsigned int loadSound(const char* const filename);
+			static uint32_t loadSound(const char* const filename);
 
 			static void dispose();
 		private:
 			static ALCdevice* device;
 			static ALCcontext* context;
-			static std::vector<unsigned int> buffers;
+			static std::vector<uint32_t> buffers;
 			static glm::vec3 listenerPosition, listenerVelocity;
 
-			static unsigned int loadSoundBuffer(const char* const filename);
+			static uint32_t loadSoundBuffer(const char* const filename);
 
-			static unsigned int loadSoundBufferMP3(const char* const filename);
+			static uint32_t loadSoundBufferMP3(const char* const filename);
 
 	};
 }

@@ -1,28 +1,48 @@
 #include "Voyage/particle_renderer.hpp"
+#include "Voyage/loader.hpp"
+#include "Voyage/particle.hpp"
 #include "Voyage/particle_master.hpp"
 #include "Voyage/particle_texture.hpp"
+#include <vector>
 
 namespace Voyage {
-	ParticleRenderer::ParticleRenderer(const char* const vertex_file, const char* const fragment_file, Loader& loader, const glm::mat4& projection): model(loader.loadToVAO({-1.0F, 1.0F, -1.0F, -1.0F, 1.0F, 1.0F, 1.0F, -1.0F}, 2)), shader(new ShaderProgram(vertex_file, fragment_file, 1)), dest(glm::identity<glm::mat4>()), vboID(loader.loadEmptyVBO(1000)) {
+
+	uint32_t ParticleRenderer::MAX_INSTANCES = 1000,
+			 ParticleRenderer::INSTANCE_DATA_LENGTH = 21;
+	float* ParticleRenderer::data = new float[MAX_INSTANCES * INSTANCE_DATA_LENGTH];
+
+	ParticleRenderer::ParticleRenderer(const char* const vertex_file, const char* const fragment_file, Loader& loader, const glm::mat4& projection): model(loader.loadToVAO({-1.0F, 1.0F, -1.0F, -1.0F, 1.0F, 1.0F, 1.0F, -1.0F}, 2)), shader(new ShaderProgram(vertex_file, fragment_file, 1)), dest(glm::mat4(1.0)), vboID(loader.loadEmptyVBO(MAX_INSTANCES * INSTANCE_DATA_LENGTH)), loader(&loader) {
 		shader->start();
 		shader->loadUniform("project", projection);
 		shader->stop();
-		// TODO: Start adding instanced data
+
+		model->addInstancedAttribute(vboID, 1, 4, INSTANCE_DATA_LENGTH, (const void*)(0 * sizeof(float)));
+		model->addInstancedAttribute(vboID, 2, 4, INSTANCE_DATA_LENGTH, (const void*)(4 * sizeof(float)));
+		model->addInstancedAttribute(vboID, 3, 4, INSTANCE_DATA_LENGTH, (const void*)(8 * sizeof(float)));
+		model->addInstancedAttribute(vboID, 4, 4, INSTANCE_DATA_LENGTH, (const void*)(12 * sizeof(float)));
+		model->addInstancedAttribute(vboID, 5, 4, INSTANCE_DATA_LENGTH, (const void*)(16 * sizeof(float)));
+		model->addInstancedAttribute(vboID, 6, 1, INSTANCE_DATA_LENGTH, (const void*)(20 * sizeof(float)));
 	}
 
 	ParticleRenderer::~ParticleRenderer() noexcept { dispose(); }
 
-	void ParticleRenderer::dispose() noexcept { if(shader) delete shader; glDeleteBuffers(1, &vboID); model->dispose(); }
+	void ParticleRenderer::dispose() noexcept { if(shader) delete shader; glDeleteBuffers(1, &vboID); model->dispose(); delete[] data; data = nullptr; }
 
 	void ParticleRenderer::prepare() {
 		renderer.prepareRender(model.get());
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
+		glEnableVertexAttribArray(4);
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthMask(GL_FALSE);
 	}
 
 	glm::mat4& ParticleRenderer::getModelViewMatrix(const glm::vec3& position, const glm::vec3& scale, const float& rotation, const glm::mat4& view) {
-		dest = glm::identity<glm::mat4>();
+		dest = glm::mat4(1.0);
 		dest = glm::translate(dest, position);
 
 		dest[0][0] = view[0][0];
@@ -42,6 +62,8 @@ namespace Voyage {
 
 		return dest;
 	}
+
+	void ParticleRenderer::getModelViewMatrix(const glm::vec3& position, const glm::vec3& scale, const float& rotation, const glm::mat4& view, float* const data) { memcpy(data, &getModelViewMatrix(position, scale, rotation, view), 16 * sizeof(float)); }
 
 	void ParticleRenderer::render(const Particle& particle, const glm::mat4& view) {
 		shader->start();
@@ -66,19 +88,18 @@ namespace Voyage {
 			renderer.loadTexture2D(0, partTex->getTexture()->getID());
 			shader->loadUniform("texMapDimensions", partTex->getNumberOfRows(), partTex->getNumberOfCols());
 			auto particle = particlesPerTex.begin();
-			while(particle != particlesPerTex.end()) {
-				if(!particle->update()) {
-					particle = particlesPerTex.erase(particle);
-					continue;
+			for(uint32_t j = 0; particle != particlesPerTex.end(); ++j) {
+				if(particle->update()) {
+					memcpy(&data[j * INSTANCE_DATA_LENGTH], &getModelViewMatrix(particle->position, particle->scale, particle->rotation, view), 16 * sizeof(float));
+					memcpy(&data[j * INSTANCE_DATA_LENGTH + 16], &particle->texOffsetCurr, 2 * sizeof(float));
+					memcpy(&data[j * INSTANCE_DATA_LENGTH + 18], &particle->texOffsetNext, 2 * sizeof(float));
+					data[j * INSTANCE_DATA_LENGTH + 20] = particle->blend;
 				}
-				shader->loadUniform("texOffsetCurr", particle->texOffsetCurr);
-				shader->loadUniform("texOffsetNext", particle->texOffsetNext);
-				shader->loadUniform("blend", particle->blend);
-				shader->loadUniform("modelView", getModelViewMatrix(particle->position, particle->scale, particle->rotation, view));
-				renderer.drawTriangleCall(model.get());
-				particle++;
+				++particle;
 			}
-			partI++;
+			loader->updateVBO(vboID, data, particlesPerTex.size() * sizeof(ParticleInstanced) / sizeof(float));
+			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, model->getVertexCount(), particlesPerTex.size());
+			++partI;
 		}
 		finish();
 		shader->stop();

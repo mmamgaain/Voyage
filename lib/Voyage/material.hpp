@@ -60,10 +60,8 @@ namespace Voyage {
 			const Material& operator=(const Material& material);
 
 			const Material& operator=(Material&& material);
-
-			void dispose();
 		private:
-			static const unsigned int NO_TEXTURE = 0;
+			static const uint32_t NO_TEXTURE = 0;
 			glm::vec3 diffuse, ambient, specular;
 			std::shared_ptr<Texture> texture, normalMap, specularMap;
 			glm::vec2 rows;

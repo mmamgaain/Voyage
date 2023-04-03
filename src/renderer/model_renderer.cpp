@@ -1,5 +1,6 @@
 #include "Voyage/model_renderer.hpp"
 #include "Voyage/maths.hpp"
+#include "Voyage/raw_model.hpp"
 
 namespace Voyage {
 	ModelRenderer::ModelRenderer(const char* const vertex_file, const char* const fragment_file, const glm::mat4& projection) {
@@ -22,7 +23,7 @@ namespace Voyage {
 		shader->loadUniform("lightDir", light.getDirection());
 		shader->loadUniform("lightCol", light.getColor());
 		loadMaterial(model.getMaterial());
-		for(auto mod : model.getModels()) renderer.renderTriangle(&mod);
+		for(const auto& mod : model.getModels()) renderer.renderTriangle(mod.get());
 		shader->stop();
 	}
 

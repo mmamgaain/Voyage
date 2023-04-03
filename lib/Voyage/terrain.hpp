@@ -8,29 +8,40 @@ namespace Voyage {
 	typedef struct Terrain {
 		public:
 			typedef struct TerrainProps {
-				unsigned int length, width, grid_size;
+				uint32_t length, width, grid_size;
 				int height;
-				float x, z;
-				float fog_density = 0, fog_gradient = 1;
+				float x, z, fog_density = 0, fog_gradient = 1;
 
-				TerrainProps(unsigned int length, unsigned int width, float x, float z, int height = 0, unsigned int grid_size = 50, float fog_density = 0, float fog_gradient = 1);
+				TerrainProps(uint32_t length, uint32_t width, float x, float z, int height = 0, uint32_t grid_size = 50, float fog_density = 0, float fog_gradient = 1);
 
 				TerrainProps(const TerrainProps& properties);
 
-				TerrainProps(TerrainProps&& properties);
+				TerrainProps& operator=(const TerrainProps& other) noexcept;
 
 				~TerrainProps() noexcept = default;
 			} TerrainProps;
 
 			Terrain(Loader& loader, const TerrainProps& properties, const MaterialTerrain& material);
 
-			Terrain(Loader& loader, TerrainProps&& properties, MaterialTerrain&& material);
+			Terrain(Loader& loader, const TerrainProps& properties, MaterialTerrain&& material);
 
-			~Terrain();
+			Terrain(const Terrain& terrain) noexcept;
+
+			Terrain(Terrain&& terrain) noexcept;
+
+			~Terrain() noexcept;
+
+			Terrain& operator=(const Terrain& other) noexcept;
+
+			Terrain& operator=(Terrain&& other) noexcept;
 
 			const RawModel& get_const() const;
 
+			const RawModel* const getptr_const() const;
+
 			RawModel& get() const;
+
+			RawModel* getptr() const;
 
 			const float& getX() const;
 
@@ -38,9 +49,9 @@ namespace Voyage {
 
 			const int& getHeight() const;
 
-			const unsigned int& getLength() const;
+			const uint32_t& getLength() const;
 
-			const unsigned int& getWidth() const;
+			const uint32_t& getWidth() const;
 
 			const TerrainProps& getProperties() const;
 

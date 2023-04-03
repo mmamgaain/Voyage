@@ -56,11 +56,11 @@ namespace Voyage {
 		height = mode->height;
 	}
 
-	void Core::set_screen_resolution(const unsigned int a_width, const unsigned int a_height) { width = a_width; height = a_height; }
+	void Core::set_screen_resolution(const uint32_t a_width, const uint32_t a_height) { width = a_width; height = a_height; }
 
-	unsigned int Core::getWidth() { return width; }
+	uint32_t Core::getWidth() { return width; }
 
-	unsigned int Core::getHeight() { return height; }
+	uint32_t Core::getHeight() { return height; }
 
 	void Core::set_background_color(const float& red, const float& green, const float& blue, const float& alpha) { glClearColor(red, green, blue, alpha); }
 

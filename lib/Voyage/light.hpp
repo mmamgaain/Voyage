@@ -6,7 +6,7 @@ namespace Voyage {
 		public:
 			DirectionalLight(glm::vec3 direction, glm::vec3 color = {1.0, 1.0, 1.0}, glm::vec3 attenuation = {1.0, 0.0, 0.0});
 
-			DirectionalLight(const DirectionalLight& light);
+			DirectionalLight(const DirectionalLight& light) noexcept;
 
 			~DirectionalLight() noexcept = default;
 
@@ -16,7 +16,7 @@ namespace Voyage {
 
 			const glm::vec3& getAttenuation() const;
 
-			const DirectionalLight& operator=(const DirectionalLight& light);
+			DirectionalLight& operator=(const DirectionalLight& other);
 		private:
 			glm::vec3 direction, color, attenuation;
 	};
@@ -25,7 +25,7 @@ namespace Voyage {
 		public:
 			PointLight(glm::vec3 position, glm::vec3 color, glm::vec3 attenuation);
 
-			PointLight(const PointLight& light);
+			PointLight(const PointLight& light) noexcept;
 
 			~PointLight() noexcept = default;
 
@@ -35,7 +35,7 @@ namespace Voyage {
 
 			const glm::vec3& getAttenuation() const;
 
-			const PointLight& operator=(const PointLight& light);
+			PointLight& operator=(const PointLight& other);
 		private:
 			glm::vec3 position, color, attenuation;
 	};
@@ -44,7 +44,7 @@ namespace Voyage {
 		public:
 			SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 color, glm::vec3 attenuation);
 
-			SpotLight(const SpotLight& light);
+			SpotLight(const SpotLight& light) noexcept;
 
 			~SpotLight() noexcept = default;
 
@@ -56,7 +56,7 @@ namespace Voyage {
 
 			const glm::vec3& getAttenuation();
 
-			const SpotLight& operator=(const SpotLight& light);
+			SpotLight& operator=(const SpotLight& other);
 		private:
 			glm::vec3 position, direction, color, attenuation;
 	};

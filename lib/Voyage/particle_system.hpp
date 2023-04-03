@@ -6,9 +6,9 @@
 namespace Voyage {
 	class ParticleSystem {
 		public:
-			ParticleSystem(const char* const vertex_file, const char* const fragment_file, Loader& loader, const glm::mat4& projection, const float& pps, const float& speed, const float& lifeLength, const ParticleTexture& texture, const float& gravityComplient = 1.0F, const float& scale = 1.0F);
+			ParticleSystem(const char* const vertex_file, const char* const fragment_file, Loader& loader, const float& pps, const float& speed, const float& lifeLength, const ParticleTexture& texture, const float& gravityComplient = 1.0F, const float& scale = 1.0F);
 
-			ParticleSystem(const char* const vertex_file, const char* const fragment_file, Loader& loader, const glm::mat4& projection, const float& pps, const float& speed, const float& lifeLength, ParticleTexture&& texture, const float& gravityComplient = 1.0F, const float& scale = 1.0F);
+			ParticleSystem(const char* const vertex_file, const char* const fragment_file, Loader& loader, const float& pps, const float& speed, const float& lifeLength, ParticleTexture&& texture, const float& gravityComplient = 1.0F, const float& scale = 1.0F);
 
 			~ParticleSystem() noexcept = default;
 

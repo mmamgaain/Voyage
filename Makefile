@@ -13,8 +13,8 @@ precompiled_dir := $(o_dir)precompiled/
 precompiled_files := $(shell find $(precompiled_dir) -type f)
 lib_dir := lib/
 src_dir := src/
-final_switches := -Wall -pthread -ldl -lm -xc++ --std=c++17 -O2# -lGL -lXrandr -lXxf86vm -lXi -lXinerama -lX11 -lrt
-object_switches := -c -O2 -xc++ --std=c++17
+final_switches := -Wall -pthread -ldl -lm -pedantic -ansi -xc++ --std=c++17 -pedantic -ansi -O2# -lGL -lXrandr -lXxf86vm -lXi -lXinerama -lX11 -lrt
+object_switches := -c -O2 -pedantic -ansi -xc++ --std=c++17
 debug_object_switches := $(object_switches) -g -D_DEBUG
 src_files := $(shell find $(src_dir) -type f -name "*.cpp")
 header_files := $(shell find $(lib_dir)Voyage/ -type f -name "*.hpp")

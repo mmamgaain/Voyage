@@ -4,19 +4,19 @@
 namespace Voyage {
 	typedef struct Texture {
 		public:
-			Texture(const char* filepath, const bool& flip_vertically = true, const float& anisotropic = 4.0, const int& type = GL_TEXTURE_2D);
+			Texture(const char* const filepath, const bool& flip_vertically = true, const float& anisotropic = 4.0F, const int& type = GL_TEXTURE_2D) noexcept;
 
-			Texture(const std::vector<const char*>& filepaths, const std::vector<bool>& flip_vertically = {false, false, false, false, false, false}, const float& levelOfDetail = 0.0F, const float& anisotropic = 4.0);
+			Texture(const std::vector<const char*>& filepaths, const std::vector<bool>& flip_vertically = {false, false, false, false, false, false}, const float& levelOfDetail = 0.0F, const float& anisotropic = 4.0F) noexcept;
 
-			Texture(const Texture& texture);
+			Texture(const Texture& texture) noexcept;
 
-			Texture(Texture&& texture);
+			Texture(Texture&& texture) noexcept;
 
-			~Texture();
+			~Texture() noexcept;
 
 			const unsigned char* getBuffer() const;
 
-			const unsigned int& getID() const;
+			const uint32_t& getID() const;
 
 			const int& getWidth() const;
 
@@ -28,16 +28,16 @@ namespace Voyage {
 
 			const bool isFilepath(const char* filepath) const;
 
-			const Texture& operator=(Texture&& texture);
+			const Texture& operator=(const Texture& lhs);
 
-			const Texture& operator=(const Texture& texture);
+			const Texture& operator=(Texture&& rhs);
 
 			void dispose();
 		private:
 			unsigned char* localBuffer;
 			const char* filepath;
 			int width, height, bpp, type;
-			unsigned int id;
+			uint32_t id;
 			static float MAX_ANISOTROPY_LEVEL;
 
 	} Texture;

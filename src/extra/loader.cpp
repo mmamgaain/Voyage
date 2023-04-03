@@ -1,27 +1,28 @@
 #include "Voyage/loader.hpp"
 #include "Voyage/raw_model.hpp"
 #include "Voyage/texture.hpp"
-#include <memory>
 
 namespace Voyage {
 
-	Loader::Loader(const Loader& loader) {
+	Loader::Loader(const Loader& loader) noexcept {
 		vaos.reserve(loader.vaos.size());
 		textures.reserve(loader.textures.size());
-
-		memcpy(vaos.data(), loader.vaos.data(), vaos.size() * sizeof(unsigned int));
-		memcpy(textures.data(), loader.textures.data(), textures.size() * sizeof(unsigned int));
+		for(uint32_t i = 0; i < loader.vaos.size(); ++i) { vaos.push_back(loader.vaos[i]); }
+		for(uint32_t i = 0; i < loader.textures.size(); ++i) { textures.push_back(loader.textures[i]); }
 	}
 
-	Loader::Loader(Loader&& loader) noexcept: vaos(std::move(loader.vaos)), textures(std::move(loader.textures)) { loader.vaos.clear(); loader.textures.clear(); }
+	Loader::Loader(Loader&& loader) noexcept: vaos(std::move(loader.vaos)), textures(std::move(loader.textures)) {
+		loader.vaos.clear();
+		loader.textures.clear();
+	}
 
-	std::shared_ptr<Texture> const Loader::loadTexture(const char* filename, const bool& flip_vertically) {
+	std::shared_ptr<Texture> const Loader::loadTexture(const char* const filename, const bool& flip_vertically) {
 		std::shared_ptr<Texture> tex = std::make_shared<Texture>(filename, flip_vertically);
 		textures.push_back(tex);
 		return tex;
 	}
 
-	Loader::~Loader() { dispose(); }
+	Loader::~Loader() noexcept { dispose(); }
 
 	std::shared_ptr<Texture> const Loader::loadTexture(const std::vector<const char*>& filenames, const std::vector<bool>& flip_vertically) {
 		std::shared_ptr<Texture> tex = std::make_shared<Texture>(filenames, flip_vertically);
@@ -36,29 +37,35 @@ namespace Voyage {
 		textures.clear();
 	}
 
-	void Loader::createVAO(unsigned int& vaoID) {
+	void Loader::updateVBO(const uint32_t& vboID, const float* const data, const uint64_t& size_in_floats) const {
+		glBindBuffer(GL_ARRAY_BUFFER, vboID);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, size_in_floats * sizeof(float), data);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void Loader::createVAO(uint32_t& vaoID) {
 		glGenVertexArrays(1, &vaoID);
 		glBindVertexArray(vaoID);
 	}
 
-	void Loader::bindIndicesBuffer(const std::vector<unsigned int>& indices, std::vector<unsigned int>* vbos) {
-		unsigned int vboID;
+	void Loader::bindIndicesBuffer(const std::vector<uint32_t>& indices, std::vector<uint32_t>* vbos) {
+		uint32_t vboID;
 		glGenBuffers(1, &vboID);
 		vbos->push_back(vboID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
 	}
 
-	void Loader::bindIndicesBuffer(const unsigned int* indices, const size_t& length, std::vector<unsigned int>* vbos) {
-		unsigned int vboID;
+	void Loader::bindIndicesBuffer(const uint32_t* indices, const size_t& length, std::vector<uint32_t>* vbos) {
+		uint32_t vboID;
 		glGenBuffers(1, &vboID);
 		vbos->push_back(vboID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, length * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, length * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	}
 
-	const unsigned int Loader::loadEmptyVBO(const unsigned int& floatCount) const {
-		unsigned int vboID;
+	const uint32_t Loader::loadEmptyVBO(const uint32_t& floatCount) const {
+		uint32_t vboID;
 		glGenBuffers(1, &vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
 		glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(float), nullptr, GL_STREAM_DRAW);
@@ -67,9 +74,9 @@ namespace Voyage {
 		return vboID;
 	}
 
-	std::shared_ptr<RawModel> Loader::loadToVAO(const float* vertices, const int& dimension, const size_t& num_vertices, const size_t& num_indices, const unsigned int* indices, const float* texture_coords, const float* normals, const float* tangents, const float* bitangents) {
-		unsigned int vaoID, i = 0, vertex_count = num_vertices * dimension;
-		std::vector<unsigned int> vbos;
+	std::shared_ptr<RawModel> Loader::loadToVAO(const float* vertices, const int& dimension, const size_t& num_vertices, const size_t& num_indices, const uint32_t* indices, const float* texture_coords, const float* normals, const float* tangents, const float* bitangents) {
+		uint32_t vaoID, i = 0, vertex_count = num_vertices * dimension;
+		std::vector<uint32_t> vbos;
 		createVAO(vaoID);
 		storeDataInAttributeList(i++, dimension, vertices, vertex_count, &vbos);
 		if(indices) bindIndicesBuffer(indices, num_indices, &vbos);
@@ -83,10 +90,10 @@ namespace Voyage {
 		return model;
 	}
 
-	std::shared_ptr<RawModel> Loader::loadToVAO(const std::vector<float>& vertices, const int& dimension, const std::vector<unsigned int>& indices, const std::vector<float>& texture_coords, const std::vector<float>& normals, const std::vector<float>& tangents, const std::vector<float>& bitangents) {
-		unsigned int vaoID, i = 0;
+	std::shared_ptr<RawModel> Loader::loadToVAO(const std::vector<float>& vertices, const int& dimension, const std::vector<uint32_t>& indices, const std::vector<float>& texture_coords, const std::vector<float>& normals, const std::vector<float>& tangents, const std::vector<float>& bitangents) {
+		uint32_t vaoID, i = 0;
 		createVAO(vaoID);
-		std::vector<unsigned int> vbos;
+		std::vector<uint32_t> vbos;
 		storeDataInAttributeList(i++, dimension, vertices, &vbos);
 		if(indices.size() != 0) bindIndicesBuffer(indices, &vbos);
 		if(texture_coords.size() != 0) storeDataInAttributeList(i++, 2, texture_coords, &vbos);
@@ -99,8 +106,8 @@ namespace Voyage {
 		return model;
 	}
 
-	void Loader::storeDataInAttributeList(const unsigned int& attribNumber, const unsigned int& dimension, const std::vector<float>& data, std::vector<unsigned int>* vbos) {
-		unsigned int vboID;
+	void Loader::storeDataInAttributeList(const uint32_t& attribNumber, const uint32_t& dimension, const std::vector<float>& data, std::vector<uint32_t>* vbos) {
+		uint32_t vboID;
 		glGenBuffers(1, &vboID);
 		vbos->push_back(vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
@@ -110,8 +117,8 @@ namespace Voyage {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void Loader::storeDataInAttributeList(const unsigned int& attribNumber, const unsigned int& dimension, const float* const data, const size_t& length, std::vector<unsigned int>* vbos) {
-		unsigned int vboID;
+	void Loader::storeDataInAttributeList(const uint32_t& attribNumber, const uint32_t& dimension, const float* const data, const size_t& length, std::vector<uint32_t>* vbos) {
+		uint32_t vboID;
 		glGenBuffers(1, &vboID);
 		vbos->push_back(vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
@@ -122,6 +129,4 @@ namespace Voyage {
 	}
 
 	void Loader::unbindVAO() const { glBindVertexArray(0); }
-
-
 }

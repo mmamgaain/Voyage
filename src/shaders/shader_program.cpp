@@ -4,14 +4,14 @@
 
 namespace Voyage {
 
-	unsigned int ShaderProgram::DEFAULT_NUM_TEXTURES = 4;
-	unsigned int ShaderProgram::MAX_TEXTURE_UNITS = 0;
+	uint32_t ShaderProgram::DEFAULT_NUM_TEXTURES = 4;
+	uint32_t ShaderProgram::MAX_TEXTURE_UNITS = 0;
 
-	ShaderProgram::ShaderProgram(const char* const vertex_file, const char* const fragment_file, unsigned int num_textures) noexcept: id(0), num_textures(num_textures) {
+	ShaderProgram::ShaderProgram(const char* const vertex_file, const char* const fragment_file, uint32_t num_textures) noexcept: id(0), num_textures(num_textures) {
 		if(!MAX_TEXTURE_UNITS) glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (int*)&MAX_TEXTURE_UNITS);
-		this->num_textures = clamp<unsigned int>(num_textures, 0, MAX_TEXTURE_UNITS);
+		this->num_textures = clamp<uint32_t>(num_textures, 0, MAX_TEXTURE_UNITS);
 		location_textureUnits.resize(this->num_textures);
-		unsigned int vs = loadShader(vertex_file, GL_VERTEX_SHADER), fs = loadShader(fragment_file, GL_FRAGMENT_SHADER);
+		uint32_t vs = loadShader(vertex_file, GL_VERTEX_SHADER), fs = loadShader(fragment_file, GL_FRAGMENT_SHADER);
 		id = glCreateProgram();
 		glAttachShader(id, vs);
 		glAttachShader(id, fs);
@@ -86,8 +86,8 @@ namespace Voyage {
 		return *this;
 	}
 
-	unsigned int ShaderProgram::loadShader(const char* source, unsigned int type) {
-		unsigned int id = glCreateShader(type);
+	uint32_t ShaderProgram::loadShader(const char* source, uint32_t type) {
+		uint32_t id = glCreateShader(type);
 		std::string result;
 		std::ifstream in(source, std::ios::binary);
 		if(!in) { std::cerr << "Shader file: " << source << " either doesn't exist or has some problem being opened!" << std::endl; exit(1); }
@@ -124,13 +124,13 @@ namespace Voyage {
 		return loc;
 	}
 
-	void ShaderProgram::getAllTextureLocations() { for(unsigned int i = 0; i < num_textures; i++) { location_textureUnits[i] = getUniformLocation(("texture" + std::to_string(i)).data(), false); } }
+	void ShaderProgram::getAllTextureLocations() { for(uint32_t i = 0; i < num_textures; i++) { location_textureUnits[i] = getUniformLocation(("texture" + std::to_string(i)).data(), false); } }
 
 	void ShaderProgram::loadUniform(const char* const name, const float& value) { glUniform1f(getUniformLocation(name), value); }
 
 	void ShaderProgram::loadUniform(const char* const name, const int& value) { glUniform1i(getUniformLocation(name), value); }
 
-	void ShaderProgram::loadUniform(const char* const name, const unsigned int& value) { glUniform1ui(getUniformLocation(name), value); }
+	void ShaderProgram::loadUniform(const char* const name, const uint32_t& value) { glUniform1ui(getUniformLocation(name), value); }
 
 	void ShaderProgram::loadUniform(const char* const name, const bool& value) { glUniform1i(getUniformLocation(name), value); }
 
@@ -152,7 +152,7 @@ namespace Voyage {
 
 	void ShaderProgram::dispose() { glDeleteProgram(id); uniformLocations.clear(); }
 
-	bool ShaderProgram::remapTextureSampleName(const unsigned int& location, const char* const name) const {
+	bool ShaderProgram::remapTextureSampleName(const uint32_t& location, const char* const name) const {
 		if(location < num_textures) {
 			location_textureUnits.at(location) = getUniformLocation(name, false);
 			glUniform1i(location_textureUnits[location], location);

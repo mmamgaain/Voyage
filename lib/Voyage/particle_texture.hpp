@@ -5,18 +5,26 @@
 namespace Voyage {
 	typedef struct ParticleTexture {
 		public:
-			ParticleTexture(const std::shared_ptr<Texture>& texture, const unsigned int& numberOfRows = 1, const unsigned int& numberOfCols = 0);
+			ParticleTexture(const std::shared_ptr<Texture>& texture, const uint32_t& numberOfRows = 1, const uint32_t& numberOfCols = 0);
+
+			ParticleTexture(const ParticleTexture& texture) noexcept;
+
+			ParticleTexture(ParticleTexture&& texture) noexcept;
+
+			ParticleTexture& operator=(const ParticleTexture& lhs) noexcept;
+
+			ParticleTexture& operator=(ParticleTexture&& rhs) noexcept;
 
 			~ParticleTexture() noexcept;
 
 			const std::shared_ptr<Texture>& getTexture() const;
 
-			const unsigned int& getNumberOfRows() const;
+			const uint32_t& getNumberOfRows() const;
 
-			const unsigned int& getNumberOfCols() const;
+			const uint32_t& getNumberOfCols() const;
 		private:
 			std::shared_ptr<Texture> texture;
-			unsigned int numberOfRows, numberOfCols;
+			uint32_t numberOfRows, numberOfCols;
 
 	} ParticleTexture;
 }

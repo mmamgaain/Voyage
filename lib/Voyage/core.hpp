@@ -27,11 +27,11 @@ namespace Voyage {
 
 			static void set_vsync(const int& vsync);
 
-			static void set_screen_resolution(const unsigned int a_width, const unsigned int a_height);
+			static void set_screen_resolution(const uint32_t a_width, const uint32_t a_height);
 
-			static unsigned int getWidth();
+			static uint32_t getWidth();
 
-			static unsigned int getHeight();
+			static uint32_t getHeight();
 
 			static void set_background_color(const float& red, const float& green, const float& blue, const float& alpha = 1.0);
 

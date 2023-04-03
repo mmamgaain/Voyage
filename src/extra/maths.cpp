@@ -7,9 +7,9 @@ namespace Voyage {
 
 	bool isEven(const int& val) { return !(val & 1); }
 
-	float roundToPlaces(const float& value, const unsigned int& places) { float mult = (float)pow(10, places); return (round(value * mult) / mult); }
+	float roundToPlaces(const float& value, const uint32_t& places) { float mult = (float)pow(10, places); return (round(value * mult) / mult); }
 
-	int roundNearest(const float& value, const unsigned int& nearest) { return round(value / nearest) * nearest; }
+	int roundNearest(const float& value, const uint32_t& nearest) { return round(value / nearest) * nearest; }
 
 	bool inRange(const float& value, const float& min, const float& max) { return value >= fmin(min, max) && value <= fmax(min, max); }
 
