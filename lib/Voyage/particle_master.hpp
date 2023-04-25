@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include <voyage.hpp>
 #include "Voyage/particle.hpp"
 #include "Voyage/particle_renderer.hpp"
@@ -16,7 +15,7 @@ namespace Voyage {
 
 			static void addParticle(const ParticleTexture* texture, const glm::vec3& position, const glm::vec3& velocity = {}, const glm::vec3& scale = {1.0, 1.0, 1.0}, const float& gravityEffect = 1.0, const float& lifeLength = 1.0, const float& rotation = 0.0);
 
-			static const int getNumParticles();
+			static uint32_t getNumParticles(const ParticleTexture* texture = nullptr);
 
 			static void render(const glm::mat4& view);
 

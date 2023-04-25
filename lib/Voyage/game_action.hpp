@@ -54,7 +54,7 @@ namespace Voyage {
 
 			void dispose();
 
-			friend std::ostream& operator<<(std::ostream& stream, const GameAction& action);
+			friend std::ostream& operator<<(std::ostream& stream, const GameAction& action) noexcept;
 		private:
 			uint32_t amount, key;
 			std::string name;
@@ -78,6 +78,6 @@ namespace Voyage {
 			static void mouse_position_helper(const uint32_t, const uint32_t, const double);
 	};
 
-	std::ostream& operator<<(std::ostream& stream, const GameAction& action);
+	std::ostream& operator<<(std::ostream& stream, const GameAction& action) noexcept;
 }
 

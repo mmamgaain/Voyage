@@ -21,23 +21,23 @@ uniform vec2 offset, numberOfRows;
 uniform bool hasNormalMap, hasEnviroMap, isTransparent;
 uniform vec4 clipPlane;
 
-void main(void){
+void main(void) {
 
 	vec4 worldPosition = transform * vec4(position, 1.0),
 		 fromCameraPosition = view * worldPosition;
 	gl_Position = project * fromCameraPosition;
-	
+
 	out_textureCoords = (textureCoords / numberOfRows) + offset;
 	gl_ClipDistance[0] = dot(worldPosition, clipPlane);
-	
+
 	// Phong shading
 	vec4 completeNormal = transform * vec4(normals, 0.0);
 	surfaceNormal = completeNormal.xyz;
 	toLightVector = lightPos - worldPosition.xyz;
-	
+
 	// Specular shading
 	toCameraVector = normalize((inverse(view) * vec4(0.0, 0.0, 0.0, 1.0) - worldPosition).xyz);
-	
+
 	// Environment reflection and refraction calculations
 	// This has to be done before normal mapping calculations as they modify the
 	// vector variables used in these calculations to tangent space and we need them in
@@ -48,7 +48,7 @@ void main(void){
 		refractionVector = refract(-toCameraVector, unitNormal, REFRACTIVE_INDEX);
 		refractiveFactor = pow(dot(-fromCameraPosition.xyz, unitNormal), enviroRefractivity);
 	}
-	
+
 	// Normal map modifications
 	if(hasNormalMap) {
 		vec3 norm 	= normalize((view * completeNormal).xyz),
@@ -56,7 +56,7 @@ void main(void){
 		 	 bitang = cross(norm, tang);
 		 	 //bitang = normalize(bitangents);
 		 	 //bitang = normalize((view * transform * vec4(bitangents, 0.0)).xyz);
-	
+
 		mat3 toTangentSpace = mat3(
 			tang.x, bitang.x, norm.x,
 			tang.y, bitang.y, norm.y,
@@ -65,7 +65,7 @@ void main(void){
 		toLightVector = toTangentSpace * (lightPosEyeSpace - fromCameraPosition.xyz);
 		toCameraVector = toTangentSpace * normalize(-fromCameraPosition.xyz);
 	}
-	
+
 	// Fog calculations
 	float dist = length(fromCameraPosition.xyz);
 	visibility = clamp(exp(-pow(dist * fogDensity, fogGradient)), 0.0, 1.0);

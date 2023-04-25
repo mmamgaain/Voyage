@@ -3,7 +3,6 @@
 #include "Voyage/particle.hpp"
 #include "Voyage/particle_master.hpp"
 #include "Voyage/particle_texture.hpp"
-#include <vector>
 
 namespace Voyage {
 
@@ -76,8 +75,7 @@ namespace Voyage {
 
 	void ParticleRenderer::render(std::unordered_map<const ParticleTexture*, std::vector<ParticleInstanced>>& it, const glm::mat4& view) {
 		shader->start();
-		auto partI = it.begin();
-		while(partI != it.end()) {
+		for(auto partI = it.begin(); partI != it.end(); ++partI) {
 			std::vector<ParticleInstanced>& particlesPerTex = partI->second;
 			if(particlesPerTex.empty()) {
 				partI = it.erase(partI);
@@ -88,18 +86,19 @@ namespace Voyage {
 			renderer.loadTexture2D(0, partTex->getTexture()->getID());
 			shader->loadUniform("texMapDimensions", partTex->getNumberOfRows(), partTex->getNumberOfCols());
 			auto particle = particlesPerTex.begin();
-			for(uint32_t j = 0; particle != particlesPerTex.end(); ++j) {
+			uint32_t live_particles_count = 0;
+			while(particle != particlesPerTex.end()) {
 				if(particle->update()) {
-					memcpy(&data[j * INSTANCE_DATA_LENGTH], &getModelViewMatrix(particle->position, particle->scale, particle->rotation, view), 16 * sizeof(float));
-					memcpy(&data[j * INSTANCE_DATA_LENGTH + 16], &particle->texOffsetCurr, 2 * sizeof(float));
-					memcpy(&data[j * INSTANCE_DATA_LENGTH + 18], &particle->texOffsetNext, 2 * sizeof(float));
-					data[j * INSTANCE_DATA_LENGTH + 20] = particle->blend;
+					memcpy(&data[live_particles_count * INSTANCE_DATA_LENGTH], &getModelViewMatrix(particle->position, particle->scale, particle->rotation, view), 16 * sizeof(float));
+					memcpy(&data[live_particles_count * INSTANCE_DATA_LENGTH + 16], &particle->texOffsetCurr, 2 * sizeof(float));
+					memcpy(&data[live_particles_count * INSTANCE_DATA_LENGTH + 18], &particle->texOffsetNext, 2 * sizeof(float));
+					data[live_particles_count * INSTANCE_DATA_LENGTH + 20] = particle->blend;
+					++live_particles_count;
 				}
 				++particle;
 			}
-			loader->updateVBO(vboID, data, particlesPerTex.size() * sizeof(ParticleInstanced) / sizeof(float));
-			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, model->getVertexCount(), particlesPerTex.size());
-			++partI;
+			loader->updateVBO(vboID, data, live_particles_count * sizeof(ParticleInstanced) / sizeof(float));
+			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, model->getVertexCount(), live_particles_count);
 		}
 		finish();
 		shader->stop();

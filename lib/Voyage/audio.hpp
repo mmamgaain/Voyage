@@ -1,7 +1,7 @@
 #pragma once
 #include <voyage.hpp>
-#include "openal/al.h"
-#include "openal/alc.h"
+#include "openal/include/AL/al.h"
+#include "openal/include/AL/alc.h"
 
 namespace Voyage {
 	class AudioMaster {

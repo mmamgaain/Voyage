@@ -1,6 +1,6 @@
 #include "Voyage/source.hpp"
-#include "openal/al.h"
-#include "openal/alc.h"
+#include "openal/include/AL/al.h"
+#include "openal/include/AL/alc.h"
 
 namespace Voyage {
 	Source::Source(const int& buffer, const glm::vec3& position, const glm::vec3& velocity, const bool& startPlaying): id(0), position({0, 0, 0}), velocity({0, 0, 0}), rolloffFactor(1), referenceDist(6), maxDistance(15), volume(1), playing(false), looping(false) {

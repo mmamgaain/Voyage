@@ -12,9 +12,11 @@ o_dir := build/
 precompiled_dir := $(o_dir)precompiled/
 precompiled_files := $(shell find $(precompiled_dir) -type f)
 lib_dir := lib/
+submodules_dir := $(o_dir)submodules/
+include_paths := -I$(lib_dir) -I$(submodules_dir)
 src_dir := src/
-final_switches := -Wall -pthread -ldl -lm -pedantic -ansi -xc++ --std=c++17 -pedantic -ansi -O2# -lGL -lXrandr -lXxf86vm -lXi -lXinerama -lX11 -lrt
-object_switches := -c -O2 -pedantic -ansi -xc++ --std=c++17
+final_switches := -Wall -pthread -ldl -lm -xc++ --std=c++17 -pedantic -ansi -O3# -lGL -lXrandr -lXxf86vm -lXi -lXinerama -lX11 -lrt
+object_switches := -c -O3 -pedantic -ansi -xc++ --std=c++17
 debug_object_switches := $(object_switches) -g -D_DEBUG
 src_files := $(shell find $(src_dir) -type f -name "*.cpp")
 header_files := $(shell find $(lib_dir)Voyage/ -type f -name "*.hpp")
@@ -37,6 +39,65 @@ FILTER_OUT = $(foreach v,$(2),$(if $(findstring $(1),$(v)),,$(v)))
 run_release: compile_release_executable
 	@echo "Executing '$(abspath main)' application..." && ./main
 
+######### SUBMODULES ####################################
+# 1. Assimp #########################################
+assimp_dir := $(submodules_dir)assimp/
+assimp_lib := $(shell find $(assimp_dir)bin/ -type f)
+assimp_update:
+	@echo "Updating Assimp submodule..." && ./scripts/build_assimp.sh
+#####################################################
+# 2. MiniMP3 ########################################
+minimp3_dir := $(submodules_dir)minimp3/
+minimp3_lib := $(minimp3_dir)minimp3.a
+minimp3_update:
+	@echo "Updating MiniMP3 submodule..." && ./scripts/build_minimp3.sh && $(cc) $(debug_object_switches) -o $(minimp3_dir)minimp3.o $(minimp3_dir)minimp3.cpp && ar rcs -o $(minimp3_dir)minimp3.a $(minimp3_dir)minimp3.o && rm $(minimp3_dir)minimp3.o $(minimp3_dir)minimp3.cpp
+# 3. Imgui #########################################
+imgui_dir_submodule := $(submodules_dir)imgui/
+imgui_dir_local := $(lib_dir)imgui/
+imgui_src := $(shell find $(imgui_dir_local) -type f -name "*.cpp")
+imgui_out := $(precompiled_dir)imgui.a
+git_update_imgui_submodule:
+	@echo "Updating ImGUI submodule..." && ./scripts/build_imgui.sh
+$(imgui_out): $(imgui_src)
+	@echo "Compiling ImGUI..." && ls $? | xargs -n 1 -I{} sh -c "$(cc) $(debug_object_switches) -I$(imgui_dir_local) -o {}.o {}" && ar rcs -o $(imgui_out) $(imgui_dir_local)*.o && rm $(imgui_dir_local)*.o
+imgui_update: git_update_imgui_submodule $(imgui_out)
+#####################################################
+# 4. GLFW ###########################################
+glfw_dir := $(submodules_dir)glfw/
+glfw_lib := $(glfw_dir)build/src/libglfw3.a
+glfw_update:
+	@echo "Updating GLFW submodule..." && ./scripts/build_glfw.sh
+#####################################################
+# 5. stb ############################################
+stb_dir := $(submodules_dir)stb/
+stb_src := $(shell find $(stb_dir) -maxdepth 1 -type f -name "*.cpp")
+stb_out := $(stb_dir)/libstb.a
+git_update_stb_submodule:
+	@echo "Updating stb submodule..." && ./scripts/build_stb.sh
+$(stb_out): $(stb_src)
+	@echo "Compiling stb..." && ls $? | xargs -n 1 -I{} sh -c "$(cc) $(debug_object_switches) -I$(stb_dir) $(include_paths) -o {}.o {}" && ar rcs -o $(stb_out) $(stb_dir)*.o && rm $(stb_dir)*.o
+stb_update: git_update_stb_submodule $(stb_out)
+#####################################################
+# 6. OpenAL #########################################
+openal_dir := $(submodules_dir)openal/
+openal_lib := $(shell find $(openal_dir) -type f -name "libopenal.so*")
+openal_update:
+	@echo "Updating OpenAL submodule..." && ./scripts/build_openal.sh
+#####################################################
+# 7. libsndfile #####################################
+libsndfile_dir := $(submodules_dir)libsndfile/
+libsndfile_lib := $(libsndfile_dir)CMakeBuild/lib/libsndfile.so*
+libsndfile_update:
+	@./scripts/build_libsndfile.sh
+#####################################################
+# Combining all submodules for convinience ##########
+submodule_dirs := $(assimp_dir) $(minimp3_dir) $(imgui_dir) $(stb_dir) $(openal_dir) $(libsndfile_dir)
+submodule_lib := $(assimp_lib) $(minimp3_lib) $(glfw_lib) $(stb_out) $(openal_lib) $(libsndfile_lib)
+update_submodules: assimp_update minimp3_update imgui_update stb_update openal_update libsndfile_update
+	@echo "All submodules updated."
+#####################################################
+#########################################################
+
 # Rule to execute the debug executable
 run_debug: compile_debug_executable
 	@echo "Executing '$(abspath main_d)' application..." && ./main_d
@@ -49,11 +110,11 @@ dynamic_library_init: static_library_init
 
 # Compile as library -- static
 compile_as_static_library: static_library_init $(out_pch_out) $(debug_o_files)
-	@echo "Compiling Voyage as static library $(abspath libvoyage.a)" && ar rcs libvoyage.a $(addprefix $(o_dir),$(notdir $(debug_o_files)))
+	@echo "Compiling Voyage as static library $(abspath libvoyage.a)" && ar rcs libvoyage.a $(addprefix $(o_dir), $(notdir $(debug_o_files)))
 
 # Compile as library --dynamic
 compile_as_dynamic_library: dynamic_library_init $(out_pch_out) $(debug_o_files)
-	@echo "Compiling Voyage as dynamic library $(abspath libvoyage.so)" && $(cc) -I$(lib_dir) -shared $(addprefix $(o_dir),$(notdir $(debug_o_files))) -o libvoyage.so
+	@echo "Compiling Voyage as dynamic library $(abspath libvoyage.so)" && $(cc) $(include_paths) -shared $(addprefix $(o_dir), $(notdir $(debug_o_files))) -o libvoyage.so
 
 # Rule to compile and export the project to be incorporated into other projects
 export: $(in_pch_out) $(out_pch_out) compile_as_static_library compile_debug_objects
@@ -61,10 +122,10 @@ export: $(in_pch_out) $(out_pch_out) compile_as_static_library compile_debug_obj
 
 # Pattern rule to just compile the source files and create an executable in the current directory
 compile_release_executable: compile_objects
-	@echo "Compiling and linking into executable '$(abspath main)'" && $(cc) -o main $(addprefix $(o_dir), $(notdir $(o_files))) $(precompiled_files) $(final_switches)
+	@echo "Compiling and linking into executable '$(abspath main)'" && $(cc) -o main $(addprefix $(o_dir), $(notdir $(o_files))) $(precompiled_files) $(submodule_lib) $(final_switches)
 
 compile_debug_executable: compile_debug_objects
-	@echo "Compiling and linking into debug executable '$(abspath main_d)'" && $(cc) -o main_d $(addprefix $(o_dir), $(notdir $(debug_o_files))) $(precompiled_files) $(final_switches)
+	@echo "Compiling and linking into debug executable '$(abspath main_d)'" && $(cc) -o main_d $(addprefix $(o_dir), $(notdir $(debug_o_files))) $(precompiled_files) $(submodule_lib) $(final_switches)
 
 # Pattern rule to just compile the source files to object files in the build directory
 compile_objects: $(in_pch_out) $(o_files)
@@ -78,19 +139,19 @@ $(out_pch_source): $(header_files)
 
 # Making the internal Precompiled Header File
 $(in_pch_out): $(in_pch_source)
-	@echo "Voyage Precompiled header was found to be outdated.\nCompiling Voyage PCH to $(abspath $(in_pch_out))" && $(cc) $(debug_object_switches) -I$(lib_dir) -Xlinker --verbose -shared -o $@ $^
+	@echo "Voyage Precompiled header was found to be outdated.\nCompiling Voyage PCH to $(abspath $(in_pch_out))" && $(cc) $(debug_object_switches) $(include_paths) -Xlinker --verbose -shared -o $@ $^
 
 # Making the external Precompiled Header File
 $(out_pch_out): $(out_pch_source)
-	@echo "Voyage Precompiled header was found to be outdated.\nCompiling Voyage PCH to $(abspath $(out_pch_out))" && $(cc) $(debug_object_switches) -I$(lib_dir) -Xlinker --verbose -shared -o $@ $^
+	@echo "Voyage Precompiled header was found to be outdated.\nCompiling Voyage PCH to $(abspath $(out_pch_out))" && $(cc) $(debug_object_switches) $(include_paths) -Xlinker --verbose -shared -o $@ $^
 
 # Pattern rule to match all the object files
 $(o_files): $(src_files)
-	@if ! [ -f $(o_dir)$(notdir $@) ] || [ `date -r $(o_dir)$(notdir $@) +%s` -lt `date -r $*.cpp +%s` ]; then $(cc) $(object_switches) -I$(src_dir) -I$(lib_dir) -I$(lib_dir)PhysX/physx/ -I$(lib_dir)PhysX/pxshared/ $*.cpp -o $(o_dir)$(notdir $@) && echo "Compiling $(o_dir)$(notdir $@) from $(basename $@).cpp..."; else echo "Object file $(o_dir)$(notdir $@) already up-to-date."; fi
+	@if ! [ -f $(o_dir)$(notdir $@) ] || [ `date -r $(o_dir)$(notdir $@) +%s` -lt `date -r $*.cpp +%s` ]; then $(cc) $(object_switches) $(include_paths) -I$(lib_dir)PhysX/physx/ -I$(lib_dir)PhysX/pxshared/ $*.cpp -o $(o_dir)$(notdir $@) && echo "Compiling $(o_dir)$(notdir $@) from $(basename $@).cpp..."; else echo "Object file $(o_dir)$(notdir $@) already up-to-date."; fi
 
 # Pattern rule to match all the debug object files
 $(debug_o_files): $(src_files)
-	@if ! [ -f $(o_dir)$(notdir $@) ] || [ `date -r $(o_dir)$(notdir $@) +%s` -lt `date -r $(*:_d=.cpp) +%s` ]; then $(cc) $(debug_object_switches) -I$(src_dir) -I$(lib_dir) -I$(lib_dir)PhysX/physx/ -I$(lib_dir)PhysX/pxshared/ $(*:_d=.cpp) -o $(o_dir)$(notdir $@) && echo "Compiling $(o_dir)$(notdir $@) from $(patsubst %_d,%.cpp, $(basename $@))..."; else echo "Object file $@ already up-to-date."; fi
+	@if ! [ -f $(o_dir)$(notdir $@) ] || [ `date -r $(o_dir)$(notdir $@) +%s` -lt `date -r $(*:_d=.cpp) +%s` ]; then $(cc) $(debug_object_switches) $(include_paths) -I$(lib_dir)PhysX/physx/ -I$(lib_dir)PhysX/pxshared/ $(*:_d=.cpp) -o $(o_dir)$(notdir $@) && echo "Compiling $(o_dir)$(notdir $@) from $(patsubst %_d,%.cpp, $(basename $@))..."; else echo "Object file $@ already up-to-date."; fi
 
 # Rule to clean the intermediate object(*.o) files
 clean:
@@ -100,3 +161,4 @@ clean:
 fresh: clean
 	@if [ -f main ]; then rm main; fi; if [ -f main_d ]; then rm main_d; fi; if [ -f libvoyage.a ]; then rm libvoyage.a; fi; if [ -f libvoyage.so ]; then rm libvoyage.so; fi
 # RULES DEFINITION ENDED  #############
+

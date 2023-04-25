@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include <voyage.hpp>
 #include "renderer.hpp"
 #include "shader_program.hpp"

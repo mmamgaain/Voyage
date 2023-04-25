@@ -1,7 +1,5 @@
 #pragma once
 #include <voyage.hpp>
-#include "glm/glm.hpp"
-#include "glm/detail/qualifier.hpp"
 
 namespace Voyage {
 

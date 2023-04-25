@@ -23,6 +23,7 @@ namespace Voyage {
 		shader->loadUniform("lightDir", light.getDirection());
 		shader->loadUniform("lightCol", light.getColor());
 		loadMaterial(model.getMaterial());
+		shader->loadUniform("ambientLightIntensity", 0.2F);
 		for(const auto& mod : model.getModels()) renderer.renderTriangle(mod.get());
 		shader->stop();
 	}
@@ -35,12 +36,12 @@ namespace Voyage {
 		shader->loadUniform("material.specular", material.getSpecularColor());
 		shader->loadUniform("material.reflectivity", material.specularReflectivity);
 		shader->loadUniform("material.shineDamper", material.shineDamper);
-		shader->loadUniform("material.hasDiffuseTexture", material.hasTexture());
-		shader->loadUniform("material.hasNormalMap", material.hasNormalMap());
-		shader->loadUniform("material.hasSpecularMap", material.hasSpecularMap());
-		shader->loadUniform("material.isTransparent", (bool) material.transparency);
+		shader->loadUniform("material.hasDiffuseTexture", (int) material.hasTexture());
+		shader->loadUniform("material.hasNormalMap", (int) material.hasNormalMap());
+		shader->loadUniform("material.hasSpecularMap", (int) material.hasSpecularMap());
+		shader->loadUniform("material.isTransparent", (int) material.transparency);
 		shader->loadUniform("material.transparency", material.transparency);
-		shader->loadUniform("material.hasFresnel", material.hasFresnel);
+		shader->loadUniform("material.hasFresnel", (int) material.hasFresnel);
 		shader->loadUniform("material.fresnelPower", material.fresnelPower);
 	}
 }

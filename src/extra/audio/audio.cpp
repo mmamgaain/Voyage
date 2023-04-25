@@ -1,11 +1,8 @@
 #include "Voyage/audio.hpp"
-#include "openal/al.h"
-#include "openal/alext.h"
-#include "sndfile.h"
-#include "minimp3/minimp3.h"
-#include "minimp3/minimp3_ex.h"
-#include <cstdio>
-#include <string_view>
+#include "openal/include/AL/alext.h"
+#include "libsndfile/include/sndfile.h"
+#include <minimp3/minimp3.h>
+#include <minimp3/minimp3_ex.h>
 
 namespace Voyage {
 

@@ -1,4 +1,3 @@
-#include <unordered_map>
 #include <voyage.hpp>
 #include "Voyage/core.hpp"
 #include "Voyage/game_action.hpp"
@@ -19,7 +18,6 @@
 #include "Voyage/terrain_renderer.hpp"
 #include "Voyage/material_terrain.hpp"
 #include "Voyage/types.hpp"
-#include "imgui/imgui.h"
 
 using namespace Voyage;
 
@@ -27,7 +25,7 @@ class Main : public Core {
 	public:
 		Main() {
 			#ifndef _DEBUG
-				set_fullscreen(true);
+			set_fullscreen(true);
 			#endif
 			set_vsync(GLFW_FALSE);
 			init();
@@ -35,16 +33,16 @@ class Main : public Core {
 			set_background_color(0.9922, 0.8784, 0.8509);
 			hide_and_lock_cursor(true);
 
+			models.reserve(4);
+			// terrains.reserve(2);
+			loadAssets();
+
 			initControls();
 			glm::mat4 proj{1.0};
 			getPerspectiveProjectionMatrix(proj);
 
 			SkyboxRenderer::init("res/shaders/sky.vs", "res/shaders/sky.fs", proj, loader, {"res/textures/skyboxes/default/right.png", "res/textures/skyboxes/default/left.png", "res/textures/skyboxes/default/top.png", "res/textures/skyboxes/default/bottom.png", "res/textures/skyboxes/default/back.png", "res/textures/skyboxes/default/front.png"});
 			SkyboxRenderer::setSkyRotation(SKYBOX_ROTATION_DIRECTION::ANTICLOCKWISE);
-
-			models.reserve(3);
-			// terrains.reserve(2);
-			loadAssets();
 
 			// Renderers
 			renderer = new ModelRenderer("res/shaders/triangle_grad.vs", "res/shaders/triangle_grad.fs", proj);
@@ -61,12 +59,14 @@ class Main : public Core {
 			startGame();
 		}
 
+		void start() { startGame(); }
+
 		void loadAssets() {
 			// Models
 			models.emplace_back("res/models/monkey.obj", loader, glm::vec3(10.0, 5.0, -20.0), glm::vec3(), glm::vec3(5));
 			models.emplace_back("res/models/crate/crate.obj", loader, glm::vec3(-10.0, 3.0, -20.0), glm::vec3(22.6, 51.4, 32.2), glm::vec3(0.02, 0.02, 0.02));
 			models.emplace_back("res/models/dragon.obj", loader, glm::vec3(0.0, 2.0, -30.0));
-
+			models.emplace_back("res/models/PlantAgave002.fbx", loader, glm::vec3(-10.0, 5.0, -30.0), glm::vec3(-90.0, 0, 0), glm::vec3(5));
 			// Terrains
 			terrains.emplace_back(loader, Terrain::TerrainProps(400, 400, -200, 200), MaterialTerrain(loader, "res/textures/mud.png", "res/textures/grassFlowers.png", "res/textures/grass.png", "res/textures/mosaic-floor.jpg", "res/textures/blendmaps/blendMap.png"));
 			// terrains.emplace_back(loader, Terrain::TerrainProps(400, 400, 400, 200), MaterialTerrain(loader, "res/textures/mud.png", "res/textures/grassFlowers.png", "res/textures/grass.png", "res/textures/mosaic-floor.jpg", "res/textures/blendmaps/blendMap.png"));
@@ -90,9 +90,9 @@ class Main : public Core {
 		void dispose() override {
 			ImGuiInterface::dispose();
 			SAFE_DELETE(renderer);
-			SAFE_DELETE(system);
 			std::for_each(models.begin(), models.end(), [](Model& model) { model.dispose(); });
 			SkyboxRenderer::dispose();
+			ParticleMaster::dispose();
 		}
 
 	private:
@@ -117,6 +117,7 @@ class Main : public Core {
 			ImGui::SliderFloat("Pitch", &camera.pitch, -180, 180);
 			ImGui::SliderFloat("Yaw", &camera.yaw, -180, 180);
 			ImGui::SliderFloat3("Camera position", &camera.position[0], -50, 50);
+			ImGui::Text("Particles: %d", ParticleMaster::getNumParticles(&system->texture));
 			ImGuiInterface::endWindow();
 			ImGuiInterface::endFrame();
 
@@ -156,7 +157,6 @@ class Main : public Core {
 
 int main(int argc, char** argv) {
 	Main main_instance;
-
+	// main_instance.start();
 	return 0;
-
 }

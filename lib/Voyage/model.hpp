@@ -2,8 +2,11 @@
 #include <voyage.hpp>
 #include "Voyage/loader.hpp"
 #include "Voyage/material.hpp"
+#include <thread>
 
 namespace Voyage {
+
+#define INVALID_MATERIAL 0xFFFFFFFF;
 
 	typedef struct Model {
 		public:
@@ -27,11 +30,13 @@ namespace Voyage {
 
 			void dispose();
 		private:
+			Assimp::Importer importer;
 			std::vector<std::shared_ptr<RawModel>> models;
 			glm::vec3 position, rotation, scale;
 			std::string filepath;
 			Material material;
 			static Material DEFAULT_MATERIAL;
+			// std::thread worker;
 
 			void processScene(const aiScene* scene, Loader& loader);
 

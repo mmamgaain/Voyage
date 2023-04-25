@@ -1,6 +1,6 @@
+#include <voyage.hpp>
 #include "Voyage/core.hpp"
 #include "Voyage/game_action.hpp"
-#include "glfw/glfw3.h"
 
 namespace Voyage {
 

@@ -1,0 +1,21 @@
+[submodule "build/submodules/assimp"]
+	path = build/submodules/assimp
+	url = https://github.com/assimp/assimp
+[submodule "build/submodules/minimp3"]
+	path = build/submodules/minimp3
+	url = https://github.com/lieff/minimp3
+[submodule "build/submodules/imgui"]
+	path = build/submodules/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "build/submodules/glfw"]
+	path = build/submodules/glfw
+	url = https://github.com/glfw/glfw
+[submodule "build/submodules/stb"]
+	path = build/submodules/stb
+	url = https://github.com/nothings/stb
+[submodule "build/submodules/openal"]
+	path = build/submodules/openal
+	url = https://github.com/kcat/openal-soft
+[submodule "build/submodules/libsndfile"]
+	path = build/submodules/libsndfile
+	url = https://github.com/libsndfile/libsndfile

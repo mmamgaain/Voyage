@@ -11,6 +11,7 @@ void main(void) {
 
 	vec4 colorCurr = texture(texture0, textureCoordsCurr),
 		 colorNext = texture(texture0, textureCoordsNext);
+	colorNext = vec4(colorNext.rgb, textureCoordsCurr == textureCoordsNext ? 0.0 : colorNext.a);
 
 	out_Color = mix(colorCurr, colorNext, out_blend);
 

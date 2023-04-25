@@ -7,6 +7,8 @@ namespace Voyage {
 
 	const glm::vec3& DirectionalLight::getDirection() const { return direction; }
 
+	glm::vec3& DirectionalLight::getDirection() { return direction; }
+
 	const glm::vec3& DirectionalLight::getColor() const { return color; }
 
 	const glm::vec3& DirectionalLight::getAttenuation() const { return attenuation; }

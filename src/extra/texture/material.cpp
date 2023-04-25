@@ -1,5 +1,4 @@
 #include "Voyage/material.hpp"
-#include "assimp/types.h"
 
 namespace Voyage {
 

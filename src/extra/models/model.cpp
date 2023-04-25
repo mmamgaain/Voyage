@@ -7,11 +7,11 @@ namespace Voyage {
 
 	Material Model::DEFAULT_MATERIAL;
 
-	Model::Model(const char* const filename, Loader& loader, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, Material& material): position(position), rotation(rotation), scale(scale) {
-		const aiScene* scene = aiImportFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals | aiProcess_OptimizeMeshes | aiProcess_GenNormals);
+	Model::Model(const char* const filename, Loader& loader, const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, Material& material): importer(Assimp::Importer()), position(position), rotation(rotation), scale(scale) {
+		const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace | aiProcess_FixInfacingNormals | aiProcess_OptimizeMeshes | aiProcess_GenNormals);
 		int slashIndex = -1;
 
-		for(size_t i = 0; i < strlen(filename); i++) { if(filename[i] == '/') slashIndex = i; }
+		for(size_t i = 0; i < strlen(filename); ++i) { if(filename[i] == '/') slashIndex = i; }
 
 		if(slashIndex == -1) filepath = ".";
 		else if(slashIndex == 0) filepath = "/";
@@ -23,8 +23,6 @@ namespace Voyage {
 		}
 
 		processScene(scene, loader);
-
-		aiReleaseImport(scene);
 	}
 
 	Model::Model(const Model& model) noexcept: models(model.models), position(model.position), rotation(model.rotation), scale(model.scale), filepath(model.filepath), material(model.material) {}
@@ -33,7 +31,9 @@ namespace Voyage {
 
 	Model::~Model() noexcept { dispose(); }
 
-	const std::vector<std::shared_ptr<RawModel>>& Model::getModels() const { return models; }
+	const std::vector<std::shared_ptr<RawModel>>& Model::getModels() const {
+		return models;
+	}
 
 	const Material& Model::getMaterial() const { return material; }
 
@@ -41,7 +41,7 @@ namespace Voyage {
 
 	Model& Model::operator=(const Model& other) {
 		if(this == &other) return *this;
-		dispose();
+		// dispose();
 		models = other.models;
 		position = other.position;
 		rotation = other.rotation;
@@ -83,7 +83,7 @@ namespace Voyage {
 		uint32_t *indices = new uint32_t[num_indices];
 		float *position = new float[num_vertices * 3], *texture_coords = new float[num_vertices * 2], *normals = new float[num_vertices * 3], *tangents = new float[num_vertices * 3], *bitangents = new float[num_vertices * 3];
 		aiVector3D curr_vert, curr_norm, curr_tang, curr_bitang;
-		for(uint32_t i = 0; i < num_vertices; i++) {
+		for(uint32_t i = 0; i < num_vertices; ++i) {
 			uint32_t x = i * 3, y = x + 1, z = y + 1;
 			// VERTICES
 			curr_vert = mesh->mVertices[i];
@@ -94,11 +94,11 @@ namespace Voyage {
 			// TEXTURE_COORDINATES
 			if(mesh->HasTextureCoords(0)) {
 				aiVector3D tex_coords = mesh->mTextureCoords[0][i];
-				texture_coords[i * 2	] = tex_coords.x;
+				texture_coords[i * 2 + 0] = tex_coords.x;
 				texture_coords[i * 2 + 1] = tex_coords.y;
 			}
 			else {
-				texture_coords[i * 2	] = 0.0;
+				texture_coords[i * 2 + 0] = 0.0;
 				texture_coords[i * 2 + 1] = 0.0;
 			}
 
@@ -130,11 +130,11 @@ namespace Voyage {
 		// INDICES
 		for(uint32_t i = 0; i < mesh->mNumFaces; i++) {
 			const aiFace& face = mesh->mFaces[i];
-			indices[(i * 3)	   ] = face.mIndices[0];
+			indices[(i * 3) + 0] = face.mIndices[0];
 			indices[(i * 3) + 1] = face.mIndices[1];
 			indices[(i * 3) + 2] = face.mIndices[2];
 		}
-		models.push_back(std::move(loader.loadToVAO(position, 3, num_vertices, num_indices, indices, texture_coords, normals, tangents, bitangents)));
+		models.emplace_back(loader.loadToVAO(position, 3, num_vertices, num_indices, indices, texture_coords, normals, tangents, bitangents));
 
 		delete[] position;
 		delete[] indices;

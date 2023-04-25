@@ -41,32 +41,32 @@ namespace Voyage {
 
 	ParticleInstanced::ParticleInstanced() noexcept: position({}), velocity({}), scale({}), gravityEffect(0.0F), lifeLength(0.0F), rotation(0.0F), elapsedTime(0), texOffsetCurr(0.0F), texOffsetNext(0.0F), numTexRows(0), numTexCols(0), is_alive(false) {}
 
-	ParticleInstanced::ParticleInstanced(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const uint32_t& numTexRows, const uint32_t& numTexCols): position(position), velocity(velocity), scale(scale), gravityEffect(gravityEffect), lifeLength(lifeLength), rotation(rotation), elapsedTime(0), texOffsetCurr(0.0F), texOffsetNext(0.0F), numTexRows(numTexRows), numTexCols(numTexCols), is_alive(true) {}
+	// ParticleInstanced::ParticleInstanced(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const uint32_t& numTexRows, const uint32_t& numTexCols): position(position), velocity(velocity), scale(scale), gravityEffect(gravityEffect), lifeLength(lifeLength), rotation(rotation), elapsedTime(0), texOffsetCurr(0.0F), texOffsetNext(0.0F), numTexRows(numTexRows), numTexCols(numTexCols), is_alive(true) {}
 
-	ParticleInstanced::ParticleInstanced(const ParticleInstanced& particle) noexcept: position(particle.position), velocity(particle.velocity), scale(particle.scale), gravityEffect(particle.gravityEffect), lifeLength(particle.lifeLength), rotation(particle.rotation), elapsedTime(particle.elapsedTime), texOffsetCurr(particle.texOffsetCurr), texOffsetNext(particle.texOffsetNext), numTexRows(particle.numTexRows), numTexCols(particle.numTexCols), blend(particle.blend), is_alive(true) {}
+	// ParticleInstanced::ParticleInstanced(const ParticleInstanced& particle) noexcept: position(particle.position), velocity(particle.velocity), scale(particle.scale), gravityEffect(particle.gravityEffect), lifeLength(particle.lifeLength), rotation(particle.rotation), elapsedTime(particle.elapsedTime), texOffsetCurr(particle.texOffsetCurr), texOffsetNext(particle.texOffsetNext), numTexRows(particle.numTexRows), numTexCols(particle.numTexCols), blend(particle.blend), is_alive(true) {}
 
 	// ParticleInstanced::ParticleInstanced(ParticleInstanced&& particle) noexcept {}
 
-	ParticleInstanced& ParticleInstanced::operator=(const ParticleInstanced& other) noexcept {
-		if(this == &other) return *this;
-		position = other.position;
-		velocity = other.velocity;
-		scale = other.scale;
-		gravityEffect = other.gravityEffect;
-		lifeLength = other.lifeLength;
-		rotation = other.rotation;
-		elapsedTime = other.elapsedTime;
-		texOffsetCurr = other.texOffsetCurr;
-		texOffsetNext = other.texOffsetNext;
-		numTexRows = other.numTexRows;
-		numTexCols = other.numTexCols;
-		blend = other.blend;
-		is_alive = other.is_alive;
+	/* ParticleInstanced& ParticleInstanced::operator=(const ParticleInstanced& other) noexcept {
+	   if(this == &other) return *this;
+	   position = other.position;
+	   velocity = other.velocity;
+	   scale = other.scale;
+	   gravityEffect = other.gravityEffect;
+	   lifeLength = other.lifeLength;
+	   rotation = other.rotation;
+	   elapsedTime = other.elapsedTime;
+	   texOffsetCurr = other.texOffsetCurr;
+	   texOffsetNext = other.texOffsetNext;
+	   numTexRows = other.numTexRows;
+	   numTexCols = other.numTexCols;
+	   blend = other.blend;
+	   is_alive = other.is_alive;
 
-		return *this;
-	}
+	   return *this;
+	   } */
 
-	void ParticleInstanced::set(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const uint32_t& numTexRows, const uint32_t& numTexCols) {
+	void ParticleInstanced::set(glm::vec3 position, glm::vec3 velocity, glm::vec3 scale, float gravityEffect, float lifeLength, float rotation, uint32_t numTexRows, uint32_t numTexCols) {
 		this->position = position;
 		this->velocity = velocity;
 		this->scale = scale;
@@ -83,12 +83,13 @@ namespace Voyage {
 	}
 
 	bool ParticleInstanced::update() {
-		if(!is_alive) return is_alive;
-		velocity.y -= GRAVITY_2D.y * gravityEffect * Core::deltaTime;
-		position += velocity * (float)Core::deltaTime;
-		if(numTexCols > 1 || numTexRows > 1) updateTexCoords();
-		elapsedTime += Core::deltaTime;
-		is_alive = elapsedTime < lifeLength;
+		if(is_alive) {
+			velocity.y -= GRAVITY_2D.y * gravityEffect * Core::deltaTime;
+			position += velocity * (float)Core::deltaTime;
+			if(numTexCols > 1 || numTexRows > 1) updateTexCoords();
+			elapsedTime += Core::deltaTime;
+			is_alive = elapsedTime < lifeLength;
+		}
 		return is_alive;
 	}
 
@@ -103,7 +104,7 @@ namespace Voyage {
 		setTextureOffset(texOffsetNext, indexNext);
 	}
 
-	void ParticleInstanced::setTextureOffset(glm::vec2& offset, const int& index) {
+	void ParticleInstanced::setTextureOffset(glm::vec2& offset, int index) const {
 		int column = index % numTexCols,
 			row = index / numTexCols;
 		offset.x = (float)column / numTexCols;

@@ -70,13 +70,13 @@ namespace Voyage {
 
 			~ParticleInstanced() noexcept = default;
 
-			void set(glm::vec3 position, const glm::vec3& velocity, const glm::vec3& scale, const float& gravityEffect, const float& lifeLength, const float& rotation, const uint32_t& numTexRows = 1, const uint32_t& numTexCols = 1);
+			void set(glm::vec3 position, glm::vec3 velocity, glm::vec3 scale, float gravityEffect, float lifeLength, float rotation, uint32_t numTexRows, uint32_t numTexCols);
 
 			bool update();
 		private:
 			void updateTexCoords();
 
-			void setTextureOffset(glm::vec2& offset, const int& index);
+			void setTextureOffset(glm::vec2& offset, int index) const;
 	};
 
 }

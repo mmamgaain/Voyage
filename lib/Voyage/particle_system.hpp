@@ -29,8 +29,10 @@ namespace Voyage {
 			float pps, averageSpeed, gravityComplient, averageLifeLength, averageScale, speedError, lifeError, scaleError, directionDeviation;
 			bool randomRotation;
 			glm::vec3 direction;
+		public:
 			ParticleTexture texture;
 
+		private:
 			void emitParticles(const glm::vec3& center, const int& count);
 
 			const float generateValue(const float& average, const float& errorMargin) const;

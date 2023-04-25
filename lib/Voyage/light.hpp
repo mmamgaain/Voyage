@@ -12,6 +12,8 @@ namespace Voyage {
 
 			const glm::vec3& getDirection() const;
 
+			glm::vec3& getDirection();
+
 			const glm::vec3& getColor() const;
 
 			const glm::vec3& getAttenuation() const;

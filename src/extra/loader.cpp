@@ -68,7 +68,7 @@ namespace Voyage {
 		uint32_t vboID;
 		glGenBuffers(1, &vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
-		glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(float), nullptr, GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, floatCount * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		return vboID;
@@ -99,7 +99,7 @@ namespace Voyage {
 		if(texture_coords.size() != 0) storeDataInAttributeList(i++, 2, texture_coords, &vbos);
 		if(normals.size()) storeDataInAttributeList(i++, dimension, normals, &vbos);
 		if(tangents.size() != 0) storeDataInAttributeList(i++, dimension, tangents, &vbos);
-		if(bitangents.size() != 0) storeDataInAttributeList(i++, dimension, bitangents, &vbos);
+		if(bitangents.size() != 0) storeDataInAttributeList(i, dimension, bitangents, &vbos);
 		unbindVAO();
 		std::shared_ptr<RawModel> model = std::make_shared<RawModel>(vaoID, indices.size() == 0 ? vertices.size() / dimension : indices.size(), vbos, indices.size() != 0);
 		vaos.push_back(model);

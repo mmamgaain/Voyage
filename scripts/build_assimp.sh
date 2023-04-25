@@ -1,0 +1,8 @@
+#!/bin/bash
+
+CMAKE_FLAGS='-DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_TESTS=OFF -DASSIMP_INSTALL=OFF -DASSIMP_INSTALL_PDB=OFF -DASSIMP_COVERALLS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_ASAN=ON -DASSIMP_UBSAN=ON'
+
+git submodule update build/submodules/assimp
+cd build/submodules/assimp
+cmake CMakeCache.txt $CMAKE_FLAGS
+make -j4

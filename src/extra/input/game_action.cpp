@@ -99,7 +99,7 @@ namespace Voyage {
 		}
 	}
 
-	std::ostream& operator<<(std::ostream& stream, const GameAction& action) {
+	std::ostream& operator<<(std::ostream& stream, const GameAction& action) noexcept {
 		stream << "Game Action : " << action.name << ", Key : " <<
 			/*glfwGetKeyName(action.key, glfwGetKeyScancode(action.key))*/ action.key << ", State : " <<
 			(action.state == GAME_INPUT_STATE_PRESSED ? "Pressed" : (action.state == GAME_INPUT_STATE_WAITING_FOR_RELEASE ? "Waiting to be released..." : "Released")) << ", Behaviour : " <<

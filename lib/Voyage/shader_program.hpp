@@ -51,7 +51,7 @@ namespace Voyage {
 			void dispose();
 		private:
 			uint32_t id, num_textures;
-			mutable std::unordered_map<const char*, int> uniformLocations;
+			mutable std::map<const char*, int> uniformLocations;
 			static uint32_t DEFAULT_NUM_TEXTURES, MAX_TEXTURE_UNITS;
 
 			static uint32_t loadShader(const char* const source, uint32_t type);
