@@ -21,7 +21,7 @@ namespace Voyage {
 		if(linked == GL_FALSE) {
 			int length = 0;
 			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
-			char* message = (char*) alloca(length * sizeof(char));
+			char* message = (char*) malloc(length * sizeof(char));
 			glGetProgramInfoLog(id, length, &length, message);
 			std::cerr << "Could not link shader: " << '\n' << message << (message[length - 1] == '\n' ? "" : "\n");
 			delete message;
@@ -33,7 +33,7 @@ namespace Voyage {
 		if(validated == GL_FALSE) {
 			int length = 0;
 			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length);
-			char* message = (char*) alloca(length * sizeof(char));
+			char* message = (char*) malloc(length * sizeof(char));
 			glGetProgramInfoLog(id, length, &length, message);
 			std::cerr << "Could not validate shader: " << '\n' << message << (message[length - 1] == '\n' ? "" : "\n");
 			delete message;
@@ -105,7 +105,7 @@ namespace Voyage {
 		if(compiled == GL_FALSE) {
 			int length;
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-			char* message = (char*) alloca(length * sizeof(char));
+			char* message = (char*) malloc(length * sizeof(char));
 			glGetShaderInfoLog(id, length, &length, message);
 			std::cerr << "Could not compile shader: " << source << '\n' << message << (message[length - 1] == '\n' ? "" : "\n");
 			delete message;

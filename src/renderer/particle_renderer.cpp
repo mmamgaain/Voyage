@@ -6,7 +6,7 @@
 
 namespace Voyage {
 
-	uint32_t ParticleRenderer::MAX_INSTANCES = 1000,
+	uint32_t ParticleRenderer::MAX_INSTANCES = 100,
 			 ParticleRenderer::INSTANCE_DATA_LENGTH = 21;
 	float* ParticleRenderer::data = new float[MAX_INSTANCES * INSTANCE_DATA_LENGTH];
 

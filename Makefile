@@ -39,27 +39,35 @@ FILTER_OUT = $(foreach v,$(2),$(if $(findstring $(1),$(v)),,$(v)))
 run_release: compile_release_executable
 	@echo "Executing '$(abspath main)' application..." && ./main
 
+.SECONDEXPANSION:
+assimp_lib = $(shell find $(assimp_dir)bin/ -type f)
+imgui_src = $(shell find $(imgui_dir_local) -type f -name "*.cpp")
+stb_src = $(shell find $(stb_dir) -maxdepth 1 -type f -name "*.cpp")
+openal_lib = $(shell find $(openal_dir) -type f -name "libopenal.so*")
+
 ######### SUBMODULES ####################################
 # 1. Assimp #########################################
 assimp_dir := $(submodules_dir)assimp/
-assimp_lib := $(shell find $(assimp_dir)bin/ -type f)
 assimp_update:
 	@echo "Updating Assimp submodule..." && ./scripts/build_assimp.sh
 #####################################################
 # 2. MiniMP3 ########################################
 minimp3_dir := $(submodules_dir)minimp3/
 minimp3_lib := $(minimp3_dir)minimp3.a
-minimp3_update:
-	@echo "Updating MiniMP3 submodule..." && ./scripts/build_minimp3.sh && $(cc) $(debug_object_switches) -o $(minimp3_dir)minimp3.o $(minimp3_dir)minimp3.cpp && ar rcs -o $(minimp3_dir)minimp3.a $(minimp3_dir)minimp3.o && rm $(minimp3_dir)minimp3.o $(minimp3_dir)minimp3.cpp
+minimp3_src := $(minimp3_dir)minimp3.cpp
+git_update_minimp3_submodule:
+	@echo "Updating MiniMP3 submodule..." && ./scripts/build_minimp3.sh
+$(minimp3_lib): $(minimp3_src)
+	@echo "Compiling Minimp3..." && $(cc) $(debug_object_switches) -o $^.o $^ && ar rcs -o $@ $^.o && rm $^.o $^
+minimp3_update: git_update_minimp3_submodule $(minimp3_lib)
 # 3. Imgui #########################################
 imgui_dir_submodule := $(submodules_dir)imgui/
 imgui_dir_local := $(lib_dir)imgui/
-imgui_src := $(shell find $(imgui_dir_local) -type f -name "*.cpp")
 imgui_out := $(precompiled_dir)imgui.a
 git_update_imgui_submodule:
 	@echo "Updating ImGUI submodule..." && ./scripts/build_imgui.sh
 $(imgui_out): $(imgui_src)
-	@echo "Compiling ImGUI..." && ls $? | xargs -n 1 -I{} sh -c "$(cc) $(debug_object_switches) -I$(imgui_dir_local) -o {}.o {}" && ar rcs -o $(imgui_out) $(imgui_dir_local)*.o && rm $(imgui_dir_local)*.o
+	@echo "Compiling ImGUI..." && echo $(imgui_src) | xargs -I{} -n 1 sh -c "$(cc) $(debug_object_switches) -I$(imgui_dir_local) -o {}.o {}" && ar rcs -o $(imgui_out) $(imgui_dir_local)*.o && rm $(imgui_dir_local)*.o $(imgui_dir_local)*.cpp
 imgui_update: git_update_imgui_submodule $(imgui_out)
 #####################################################
 # 4. GLFW ###########################################
@@ -70,17 +78,15 @@ glfw_update:
 #####################################################
 # 5. stb ############################################
 stb_dir := $(submodules_dir)stb/
-stb_src := $(shell find $(stb_dir) -maxdepth 1 -type f -name "*.cpp")
-stb_out := $(stb_dir)/libstb.a
+stb_out := $(stb_dir)libstb.a
 git_update_stb_submodule:
 	@echo "Updating stb submodule..." && ./scripts/build_stb.sh
 $(stb_out): $(stb_src)
-	@echo "Compiling stb..." && ls $? | xargs -n 1 -I{} sh -c "$(cc) $(debug_object_switches) -I$(stb_dir) $(include_paths) -o {}.o {}" && ar rcs -o $(stb_out) $(stb_dir)*.o && rm $(stb_dir)*.o
+	@echo "Compiling stb..." && for filename in $(stb_src); do $(cc) $(debug_object_switches) -I$(stb_dir) $(include_paths) -o $$filename.o $$filename; done && ar rcs -o $(stb_out) $(stb_dir)*.o && rm $(stb_dir)*.o
 stb_update: git_update_stb_submodule $(stb_out)
 #####################################################
 # 6. OpenAL #########################################
 openal_dir := $(submodules_dir)openal/
-openal_lib := $(shell find $(openal_dir) -type f -name "libopenal.so*")
 openal_update:
 	@echo "Updating OpenAL submodule..." && ./scripts/build_openal.sh
 #####################################################
@@ -88,12 +94,12 @@ openal_update:
 libsndfile_dir := $(submodules_dir)libsndfile/
 libsndfile_lib := $(libsndfile_dir)CMakeBuild/lib/libsndfile.so*
 libsndfile_update:
-	@./scripts/build_libsndfile.sh
+	@echo "Updating and Compiling libsndfile submodule..." && ./scripts/build_libsndfile.sh
 #####################################################
 # Combining all submodules for convinience ##########
 submodule_dirs := $(assimp_dir) $(minimp3_dir) $(imgui_dir) $(stb_dir) $(openal_dir) $(libsndfile_dir)
 submodule_lib := $(assimp_lib) $(minimp3_lib) $(glfw_lib) $(stb_out) $(openal_lib) $(libsndfile_lib)
-update_submodules: assimp_update minimp3_update imgui_update stb_update openal_update libsndfile_update
+update_submodules: assimp_update minimp3_update imgui_update glfw_update stb_update openal_update libsndfile_update
 	@echo "All submodules updated."
 #####################################################
 #########################################################

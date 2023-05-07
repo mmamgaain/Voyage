@@ -19,6 +19,17 @@ This project contains libraries written by people more talented than I am. These
 - g++
 - Makefile
 
+## Starting up
+Make sure to use the **--recursive-submodules** flag to the git clone command, like
+``` sh
+	git clone https://github.com/mmamgaain/Voyage.git --recurse-submodules
+	cd Voyage/
+```
+After this, run a command to compile all of the submodules:
+``` sh
+	make update_submodules
+```
+
 ## Basic Build Instructions (for running tests)
 To run the only test in the project currently, simply navigate to the project directory and type `make` in the command line. This will build your entire project and also execute it. `make fresh` will remove all the intermediate object files and the executable.
 
@@ -59,7 +70,7 @@ int main() {
 }
 ```
 The update method is the part of the game loop that's exposed to the developer. All of the game logic goes in here. To initialise a basic game loop, you'll probably want a constructor of the Main class like this:
-```c++
+``` c++
 Main() {
 	Core::set_fullscreen(true); 		 // Sets the window as a fullscreen window. This call has to be before call to init().
 										 // All calls after init() are ignored. DEFAULT: false
@@ -80,7 +91,7 @@ Be careful with a fullscreen application as the close button to exit application
 
 ### KEYBOARD AND MOUSE EVENTS:
 The class named `GameAction` represents the keyboard and mouse action instance. To create a simple keyboard key to exit the application:
-```c++
+``` c++
 // Welcome to a new Voyage Project.
 #include <Voyage/core.hpp>
 #include <Voyage/game_action.hpp>
@@ -113,7 +124,7 @@ int main() {
 ```
 
 The methods for adding key and mouse listener are:
-```c++
+``` c++
 // key_code - The keycode is any GLFW keycode for keyboard
 // behaviour - GAME_INPUT_BEHAVIOUR_NORMAL (default), GAME_INPUT_BEHAVIOUR_DETECT_INITIAL_PRESS_ONLY (Continuously pressing this key will only register this key having been pressed once)
 // name - Debug feature. Completely optional

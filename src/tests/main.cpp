@@ -66,7 +66,7 @@ class Main : public Core {
 			models.emplace_back("res/models/monkey.obj", loader, glm::vec3(10.0, 5.0, -20.0), glm::vec3(), glm::vec3(5));
 			models.emplace_back("res/models/crate/crate.obj", loader, glm::vec3(-10.0, 3.0, -20.0), glm::vec3(22.6, 51.4, 32.2), glm::vec3(0.02, 0.02, 0.02));
 			models.emplace_back("res/models/dragon.obj", loader, glm::vec3(0.0, 2.0, -30.0));
-			models.emplace_back("res/models/PlantAgave002.fbx", loader, glm::vec3(-10.0, 5.0, -30.0), glm::vec3(-90.0, 0, 0), glm::vec3(5));
+			// models.emplace_back("res/models/PlantAgave002.fbx", loader, glm::vec3(-10.0, 5.0, -30.0), glm::vec3(-90.0, 0, 0), glm::vec3(5));
 			// Terrains
 			terrains.emplace_back(loader, Terrain::TerrainProps(400, 400, -200, 200), MaterialTerrain(loader, "res/textures/mud.png", "res/textures/grassFlowers.png", "res/textures/grass.png", "res/textures/mosaic-floor.jpg", "res/textures/blendmaps/blendMap.png"));
 			// terrains.emplace_back(loader, Terrain::TerrainProps(400, 400, 400, 200), MaterialTerrain(loader, "res/textures/mud.png", "res/textures/grassFlowers.png", "res/textures/grass.png", "res/textures/mosaic-floor.jpg", "res/textures/blendmaps/blendMap.png"));
