@@ -1,6 +1,6 @@
 #include "Voyage/model_renderer.hpp"
-#include "Voyage/maths.hpp"
-#include "Voyage/raw_model.hpp"
+#include "Voyage/material.hpp"
+#include <cstdio>
 
 namespace Voyage {
 	ModelRenderer::ModelRenderer(const char* const vertex_file, const char* const fragment_file, const glm::mat4& projection) {
@@ -22,7 +22,12 @@ namespace Voyage {
 		shader->loadUniform("view", view);
 		shader->loadUniform("lightDir", light.getDirection());
 		shader->loadUniform("lightCol", light.getColor());
-		loadMaterial(model.getMaterial());
+		const Material& material = model.getMaterial();
+		// printf("Texture ID: %d\n", material.hasTexture());
+		loadMaterial(material);
+		// renderer.loadTexture2D(0, material.getTexture().getID());
+		// renderer.loadTexture2D(1, material.getNormalMap().getID());
+		// renderer.loadTexture2D(2, material.getSpecularMap().getID());
 		shader->loadUniform("ambientLightIntensity", 0.2F);
 		for(const auto& mod : model.getModels()) renderer.renderTriangle(mod.get());
 		shader->stop();

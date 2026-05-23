@@ -67,7 +67,7 @@ imgui_out := $(precompiled_dir)imgui.a
 git_update_imgui_submodule:
 	@echo "Updating ImGUI submodule..." && ./scripts/build_imgui.sh
 $(imgui_out): $(imgui_src)
-	@echo "Compiling ImGUI..." && echo $(imgui_src) | xargs -I{} -n 1 sh -c "$(cc) $(debug_object_switches) -I$(imgui_dir_local) -o {}.o {}" && ar rcs -o $(imgui_out) $(imgui_dir_local)*.o && rm $(imgui_dir_local)*.o $(imgui_dir_local)*.cpp
+	@echo "Compiling ImGUI..." && printf "$(imgui_src)" | xargs -d " " -I{} sh -c "$(cc) $(debug_object_switches) -I$(imgui_dir_local) -o {}.o {}" && ar rcs -o $(imgui_out) $(imgui_dir_local)*.o && rm $(imgui_dir_local)*.o $(imgui_dir_local)*.cpp
 imgui_update: git_update_imgui_submodule $(imgui_out)
 #####################################################
 # 4. GLFW ###########################################

@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <voyage.hpp>
 #include "Voyage/texture.hpp"
 

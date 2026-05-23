@@ -2,15 +2,14 @@
 #include "Voyage/core.hpp"
 #include "Voyage/game_action.hpp"
 #include "Voyage/light.hpp"
+#include "Voyage/material.hpp"
 #include "Voyage/model.hpp"
 #include "Voyage/camera.hpp"
 #include "Voyage/loader.hpp"
 #include "Voyage/model_renderer.hpp"
 #include "Voyage/particle_master.hpp"
-#include "Voyage/particle_renderer.hpp"
 #include "Voyage/particle_system.hpp"
 #include "Voyage/particle_texture.hpp"
-#include "Voyage/shader_program.hpp"
 #include "Voyage/maths.hpp"
 #include "Voyage/imgui_interface.hpp"
 #include "Voyage/skybox.hpp"
@@ -24,17 +23,17 @@ using namespace Voyage;
 class Main : public Core {
 	public:
 		Main() {
-			#ifndef _DEBUG
+#ifndef _DEBUG
 			set_fullscreen(true);
-			#endif
+#endif
 			set_vsync(GLFW_FALSE);
 			init();
 			// set_background_color(0.608, 0.104, 0.224);
 			set_background_color(0.9922, 0.8784, 0.8509);
 			hide_and_lock_cursor(true);
 
-			models.reserve(4);
-			// terrains.reserve(2);
+			// models.reserve(15);
+			terrains.reserve(2);
 			loadAssets();
 
 			initControls();
@@ -62,11 +61,26 @@ class Main : public Core {
 		void start() { startGame(); }
 
 		void loadAssets() {
+			Material material;
+			material.setTexture(loader.loadTexture("res/models/City_buildings/textures/Box_D.jpg"));
+			material.setNormalMap(loader.loadTexture("res/models/City_buildings/textures/Box_N.jpg"));
+
 			// Models
 			models.emplace_back("res/models/monkey.obj", loader, glm::vec3(10.0, 5.0, -20.0), glm::vec3(), glm::vec3(5));
 			models.emplace_back("res/models/crate/crate.obj", loader, glm::vec3(-10.0, 3.0, -20.0), glm::vec3(22.6, 51.4, 32.2), glm::vec3(0.02, 0.02, 0.02));
 			models.emplace_back("res/models/dragon.obj", loader, glm::vec3(0.0, 2.0, -30.0));
-			// models.emplace_back("res/models/PlantAgave002.fbx", loader, glm::vec3(-10.0, 5.0, -30.0), glm::vec3(-90.0, 0, 0), glm::vec3(5));
+			models.emplace_back("res/models/PlantAgave002.fbx", loader, glm::vec3(-10.0, 5.0, -30.0), glm::vec3(-90.0, 0, 0), glm::vec3(5));
+
+			models.emplace_back("res/models/City_buildings/Residential Buildings 001.fbx", loader, glm::vec3(-90.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 002.fbx", loader, glm::vec3(-70.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 003.fbx", loader, glm::vec3(-50.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 004.fbx", loader, glm::vec3(-30.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 005.fbx", loader, glm::vec3(-10.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 006.fbx", loader, glm::vec3(10.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 007.fbx", loader, glm::vec3(30.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 008.fbx", loader, glm::vec3(50.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 009.fbx", loader, glm::vec3(70.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
+			models.emplace_back("res/models/City_buildings/Residential Buildings 010.fbx", loader, glm::vec3(90.0, 0.0, -20.0), glm::vec3(-90.0, 0, 180.0), glm::vec3(1.0), material);
 			// Terrains
 			terrains.emplace_back(loader, Terrain::TerrainProps(400, 400, -200, 200), MaterialTerrain(loader, "res/textures/mud.png", "res/textures/grassFlowers.png", "res/textures/grass.png", "res/textures/mosaic-floor.jpg", "res/textures/blendmaps/blendMap.png"));
 			// terrains.emplace_back(loader, Terrain::TerrainProps(400, 400, 400, 200), MaterialTerrain(loader, "res/textures/mud.png", "res/textures/grassFlowers.png", "res/textures/grass.png", "res/textures/mosaic-floor.jpg", "res/textures/blendmaps/blendMap.png"));
@@ -85,6 +99,7 @@ class Main : public Core {
 			system->generateParticles({0, 8, -25});
 			updateImGui();
 			ParticleMaster::render(view);
+			// stopGame();
 		}
 
 		void dispose() override {
@@ -102,7 +117,7 @@ class Main : public Core {
 		glm::mat4 view;
 		Camera1P camera{{0, 5, 0}, 0, 0, 0};
 		std::vector<Model> models;
-		DirectionalLight light = DirectionalLight({100, 5000, 100});
+		DirectionalLight light = DirectionalLight({1000, 500, 1500}, {0.8, 0.2, 0.7});
 		TerrainRenderer *tRenderer;
 		std::vector<Terrain> terrains;
 		ParticleSystem *system;
